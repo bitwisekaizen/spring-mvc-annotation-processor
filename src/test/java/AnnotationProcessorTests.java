@@ -25,8 +25,9 @@ public class AnnotationProcessorTests {
         Assert.assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
 
         BetterProcessor processor = new BetterProcessor(clientFile);
-        ProcessorRequestMapping processorRequestMapping = new ProcessorRequestMapping();
-        processor.addRequestMapping(processorRequestMapping);
+        MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
+        MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
+        processor.addStub(methodSignature, processorRequestMapping);
 
         // this should produce the client stub...
         processor.process();
@@ -35,8 +36,18 @@ public class AnnotationProcessorTests {
         Assert.assertTrue(FileUtils.sizeOf(clientFile) != 0, "Client file size did not increase.");
     }
 
-    private class ProcessorRequestMapping {
+    private class MethodSignature {
 
+        public MethodSignature(Class<?> returnType, String methodName) {
+
+        }
+    }
+
+    private class MethodRequestMapping {
+
+        public MethodRequestMapping(String endpoint) {
+
+        }
     }
 
     private class ProcessorAdapter {
@@ -51,10 +62,6 @@ public class AnnotationProcessorTests {
             this.file = file;
         }
 
-        public void addRequestMapping(ProcessorRequestMapping processorRequestMapping) {
-            //To change body of created methods use File | Settings | File Templates.
-        }
-
         public void process() {
             try {
                 FileUtils.writeStringToFile(file, "something interesting to make the test pass");
@@ -62,6 +69,10 @@ public class AnnotationProcessorTests {
                 // throw runtime exception for now, but have more explicit exception soon
                 throw new RuntimeException("IOException occurred when writing to the file.", e);
             }
+        }
+
+        public void addStub(MethodSignature methodSignature, MethodRequestMapping requestMapping) {
+            //To change body of created methods use File | Settings | File Templates.
         }
     }
 
