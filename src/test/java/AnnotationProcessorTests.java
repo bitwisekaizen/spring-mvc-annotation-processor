@@ -6,9 +6,15 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +29,7 @@ public class AnnotationProcessorTests {
 
     @Test
     void canProcessRequestMappingWithBetterProcessor() throws IOException {
-        File clientFile = File.createTempFile("ClientStub", "java");
+        File clientFile = File.createTempFile("ClientStub", ".java");
         clientFile.deleteOnExit();
         assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
 
@@ -48,15 +54,16 @@ public class AnnotationProcessorTests {
 
     private class InverseProcessor {
 
+        private File file;
+        private List<MethodSignature> methodSignatures = new ArrayList<MethodSignature>();
+
         public InverseProcessor(File file) {
-            //To change body of created methods use File | Settings | File Templates.
+            this.file = file;
         }
 /*
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
 
         //Get a new instance of the standard file manager implementation
-        StandardJavaFileManager fileManager = compiler.
-                getStandardFileManager(null, null, null);
 
         // Get the list of java file objects, in this case we have only
 // one file, TestClass.java
@@ -64,11 +71,32 @@ public class AnnotationProcessorTests {
                 fileManager.getJavaFileObjectsFromFiles("TestClass.java");
     */
         public void process() {
-            //To change body of created methods use File | Settings | File Templates.
+            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+            Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(file));
+            JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
+            if (!task.call()) {
+                throw new RuntimeException("Class failed to compile.");
+            }
+
+            ClassLoader loader = ClassLoader.getSystemClassLoader();
+            try {
+                Class<?> clazz = loader.loadClass(file.getName().replaceAll(".java", ""));
+                Method[] methods = clazz.getMethods();
+                for (Method method : methods) {
+                    addMethodSignature(method);
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private void addMethodSignature(Method method) {
+            methodSignatures.add(new MethodSignature(method.getReturnType(), method.getName()));
         }
 
         public List<MethodSignature> getMethodSignatures() {
-            return new ArrayList<MethodSignature>();
+            return methodSignatures;
         }
     }
 
