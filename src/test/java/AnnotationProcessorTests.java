@@ -1,6 +1,5 @@
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -9,11 +8,15 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 @Test
 public class AnnotationProcessorTests {
@@ -22,7 +25,7 @@ public class AnnotationProcessorTests {
     void canProcessRequestMappingWithBetterProcessor() throws IOException {
         File clientFile = File.createTempFile("ClientStub", "java");
         clientFile.deleteOnExit();
-        Assert.assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
+        assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
 
         BetterProcessor processor = new BetterProcessor(clientFile);
         MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
@@ -33,7 +36,40 @@ public class AnnotationProcessorTests {
         processor.process();
 
         // file size should have increased
-        Assert.assertTrue(FileUtils.sizeOf(clientFile) != 0, "Client file size did not increase.");
+        assertTrue(FileUtils.sizeOf(clientFile) != 0, "Client file size did not increase.");
+
+        // inverse process the java source to extract the method signatures
+        InverseProcessor inverseProcessor = new InverseProcessor(clientFile);
+
+        inverseProcessor.process();
+
+        assertEquals(inverseProcessor.getMethodSignatures().size(), 1, "Expected a single method signature in inverse processor.");
+    }
+
+    private class InverseProcessor {
+
+        public InverseProcessor(File file) {
+            //To change body of created methods use File | Settings | File Templates.
+        }
+/*
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+        //Get a new instance of the standard file manager implementation
+        StandardJavaFileManager fileManager = compiler.
+                getStandardFileManager(null, null, null);
+
+        // Get the list of java file objects, in this case we have only
+// one file, TestClass.java
+        Iterable<? extends JavaFileObject> compilationUnits1 =
+                fileManager.getJavaFileObjectsFromFiles("TestClass.java");
+    */
+        public void process() {
+            //To change body of created methods use File | Settings | File Templates.
+        }
+
+        public List<MethodSignature> getMethodSignatures() {
+            return new ArrayList<MethodSignature>();
+        }
     }
 
     private class MethodSignature {
@@ -48,10 +84,6 @@ public class AnnotationProcessorTests {
         public MethodRequestMapping(String endpoint) {
 
         }
-    }
-
-    private class ProcessorAdapter {
-
     }
 
     private class BetterProcessor {
@@ -75,11 +107,6 @@ public class AnnotationProcessorTests {
             //To change body of created methods use File | Settings | File Templates.
         }
     }
-
-    public interface MockElement extends Element {
-
-    }
-
 
     //@Test
     void canProcessMethodLevelRequestMappingInSingleRound() {
