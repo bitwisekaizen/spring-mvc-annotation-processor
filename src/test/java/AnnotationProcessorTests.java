@@ -45,8 +45,10 @@ public class AnnotationProcessorTests {
 
     private class BetterProcessor {
 
+        private File file;
+
         public BetterProcessor(File file) {
-            //To change body of created methods use File | Settings | File Templates.
+            this.file = file;
         }
 
         public void addRequestMapping(ProcessorRequestMapping processorRequestMapping) {
@@ -54,7 +56,12 @@ public class AnnotationProcessorTests {
         }
 
         public void process() {
-            //To change body of created methods use File | Settings | File Templates.
+            try {
+                FileUtils.writeStringToFile(file, "something interesting to make the test pass");
+            } catch (IOException e) {
+                // throw runtime exception for now, but have more explicit exception soon
+                throw new RuntimeException("IOException occurred when writing to the file.", e);
+            }
         }
     }
 
