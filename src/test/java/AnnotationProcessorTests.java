@@ -27,10 +27,20 @@ import static org.testng.Assert.assertTrue;
 @Test
 public class AnnotationProcessorTests {
 
+    private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
+    private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/target/test-classes";
+
     @Test
-    void canProcessRequestMappingWithBetterProcessor() throws IOException {
-        File clientFile = File.createTempFile("ClientStub", ".java");
+    public void canProcessRequestMappingWithBetterProcessor() throws IOException {
+        File generatedSources = new File(GENERATED_SOURCES_DIR);
+        generatedSources.mkdirs();
+
+        File testClasses = new File(TEST_CLASSES_DIR);
+        testClasses.mkdirs();
+
+        File clientFile = File.createTempFile("ClientStub", ".java", generatedSources);
         clientFile.deleteOnExit();
+
         assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
 
         BetterProcessor processor = new BetterProcessor(clientFile);
@@ -54,11 +64,11 @@ public class AnnotationProcessorTests {
 
     private class InverseProcessor {
 
-        private File file;
+        private File sourceFile;
         private List<MethodSignature> methodSignatures = new ArrayList<MethodSignature>();
 
-        public InverseProcessor(File file) {
-            this.file = file;
+        public InverseProcessor(File sourceFile) {
+            this.sourceFile = sourceFile;
         }
 /*
 
@@ -70,18 +80,26 @@ public class AnnotationProcessorTests {
         Iterable<? extends JavaFileObject> compilationUnits1 =
                 fileManager.getJavaFileObjectsFromFiles("TestClass.java");
     */
-        public void process() {
+        public void process() throws IOException {
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-            Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(file));
+            Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
+
             JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
             if (!task.call()) {
                 throw new RuntimeException("Class failed to compile.");
             }
 
+            // move compiled file to somewhere in the classpath
+            File compiledFile = new File(sourceFile.getAbsolutePath().replaceAll(".java", ".class"));
+            File classFile = new File(TEST_CLASSES_DIR + "/" + compiledFile.getName());
+            FileUtils.moveFile(compiledFile, classFile);
+            classFile.deleteOnExit();
+            compiledFile.deleteOnExit();
+
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             try {
-                Class<?> clazz = loader.loadClass(file.getName().replaceAll(".java", ""));
+                Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
                 Method[] methods = clazz.getMethods();
                 for (Method method : methods) {
                     addMethodSignature(method);
@@ -124,7 +142,7 @@ public class AnnotationProcessorTests {
 
         public void process() {
             try {
-                FileUtils.writeStringToFile(file, "something interesting to make the test pass");
+                FileUtils.writeStringToFile(file, "public class " + file.getName().replaceFirst("(.$?)\\.java", "$1") + " {}");
             } catch (IOException e) {
                 // throw runtime exception for now, but have more explicit exception soon
                 throw new RuntimeException("IOException occurred when writing to the file.", e);
