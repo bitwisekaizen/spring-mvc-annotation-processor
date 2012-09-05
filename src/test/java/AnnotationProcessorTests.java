@@ -46,7 +46,7 @@ public class AnnotationProcessorTests {
         BetterProcessor processor = new BetterProcessor(clientFile);
         MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
-        processor.addStub(methodSignature, processorRequestMapping);
+        processor.addStub(new ClientStub(methodSignature, processorRequestMapping));
 
         // this should produce the client stub...
         processor.process();
@@ -59,7 +59,7 @@ public class AnnotationProcessorTests {
 
         inverseProcessor.process();
 
-        assertEquals(inverseProcessor.getMethodSignatures().size(), 1, "Expected a single method signature in inverse processor.");
+        assertEquals(inverseProcessor.getMethodSignatures().size(), InverseProcessor.class.getSuperclass().getMethods().length + 1, "Expected a single method signature in inverse processor.");
     }
 
     private class InverseProcessor {
@@ -120,8 +120,20 @@ public class AnnotationProcessorTests {
 
     private class MethodSignature {
 
-        public MethodSignature(Class<?> returnType, String methodName) {
+        private Class<?> returnType;
+        private String methodName;
 
+        public MethodSignature(Class<?> returnType, String methodName) {
+            this.returnType = returnType;
+            this.methodName = methodName;
+        }
+
+        public Class<?> getReturnType() {
+            return returnType;
+        }
+
+        public String getMethodName() {
+            return methodName;
         }
     }
 
@@ -132,9 +144,26 @@ public class AnnotationProcessorTests {
         }
     }
 
+    private class ClientStub {
+
+        private MethodSignature signature;
+        private MethodRequestMapping requestMapping;
+
+        public ClientStub(MethodSignature signature, MethodRequestMapping requestMapping) {
+            this.signature = signature;
+            this.requestMapping = requestMapping;
+        }
+
+        @Override
+        public String toString() {
+            return "public " + signature.getReturnType().toString() + " " + signature.getMethodName() + "() { }";
+        }
+    }
+
     private class BetterProcessor {
 
         private File file;
+        private List<ClientStub> stubs = new ArrayList<ClientStub>();
 
         public BetterProcessor(File file) {
             this.file = file;
@@ -142,15 +171,23 @@ public class AnnotationProcessorTests {
 
         public void process() {
             try {
-                FileUtils.writeStringToFile(file, "public class " + file.getName().replaceFirst("(.$?)\\.java", "$1") + " {}");
+                StringBuilder fileContents = new StringBuilder();
+                fileContents.append("public class " + file.getName().replaceFirst("(.$?)\\.java", "$1") + " {");
+
+                for (ClientStub stub : stubs) {
+                    fileContents.append(stub);
+                }
+
+                fileContents.append("}");
+                FileUtils.writeStringToFile(file, fileContents.toString());
             } catch (IOException e) {
                 // throw runtime exception for now, but have more explicit exception soon
                 throw new RuntimeException("IOException occurred when writing to the file.", e);
             }
         }
 
-        public void addStub(MethodSignature methodSignature, MethodRequestMapping requestMapping) {
-            //To change body of created methods use File | Settings | File Templates.
+        public void addStub(ClientStub stub) {
+            stubs.add(stub);
         }
     }
 
