@@ -28,7 +28,7 @@ public class AnnotationProcessorTests {
         assertEquals(FileUtils.sizeOf(generatedSource), 0, "Non-zero initial file size.");
 
         // this is the extension point...this generates the source inside of the client method
-        ClientGenerator clientGenerator = new ClientGenerator();
+        SourceGenerator clientGenerator = new TestSourceGenerator();
 
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
         MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
