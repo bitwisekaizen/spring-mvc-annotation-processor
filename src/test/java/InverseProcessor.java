@@ -44,7 +44,9 @@ public class InverseProcessor {
             Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
-                addMethodSignature(method);
+                if (!method.getDeclaringClass().equals(Object.class)) {
+                    addMethodSignature(method);
+                }
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

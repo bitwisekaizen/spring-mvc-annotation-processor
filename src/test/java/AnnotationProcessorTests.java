@@ -3,8 +3,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -44,7 +42,7 @@ public class AnnotationProcessorTests {
 
         inverseProcessor.process();
 
-        assertEquals(inverseProcessor.getMethodSignatures().size(), InverseProcessor.class.getSuperclass().getMethods().length + 1, "Expected a single method signature in inverse processor.");
+        assertEquals(inverseProcessor.getMethodSignatures().size(), 1, "Expected a single method signature in inverse processor.");
     }
 
 }
