@@ -15,19 +15,22 @@ public class AnnotationProcessorTests {
     private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/target/test-classes";
 
     @Test
-    public void canProcessRequestMappingWithBetterProcessor() throws IOException {
-        File generatedSources = new File(GENERATED_SOURCES_DIR);
-        generatedSources.mkdirs();
+    public void canProcessSimpleRequestMapping() throws IOException {
+        File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+        generatedSourcesDirectory.mkdirs();
 
-        File testClasses = new File(TEST_CLASSES_DIR);
-        testClasses.mkdirs();
+        File testClassesDirectory = new File(TEST_CLASSES_DIR);
+        testClassesDirectory.mkdirs();
 
-        File clientFile = File.createTempFile("ClientStub", ".java", generatedSources);
-        clientFile.deleteOnExit();
+        File generatedSource = File.createTempFile("ClientStub", ".java", generatedSourcesDirectory);
+        generatedSource.deleteOnExit();
 
-        assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
+        assertEquals(FileUtils.sizeOf(generatedSource), 0, "Non-zero initial file size.");
 
-        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientFile);
+        // this is the extension point...this generates the source inside of the client method
+        ClientGenerator clientGenerator = new ClientGenerator();
+
+        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
         MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
         processor.addStub(new ClientStub(methodSignature, processorRequestMapping));
@@ -36,10 +39,10 @@ public class AnnotationProcessorTests {
         processor.process();
 
         // file size should have increased
-        assertTrue(FileUtils.sizeOf(clientFile) != 0, "Client file size did not increase.");
+        assertTrue(FileUtils.sizeOf(generatedSource) != 0, "Client file size did not increase.");
 
         // inverse process the java source to extract the method signatures
-        InverseSpringControllerAnnotationProcessor inverseProcessor = new InverseSpringControllerAnnotationProcessor(clientFile, testClasses);
+        InverseSpringControllerAnnotationProcessor inverseProcessor = new InverseSpringControllerAnnotationProcessor(generatedSource, testClassesDirectory);
 
         inverseProcessor.process();
 

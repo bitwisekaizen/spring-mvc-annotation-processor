@@ -8,8 +8,7 @@ public class ClientStub {
         this.requestMapping = requestMapping;
     }
 
-    @Override
-    public String toString() {
-        return "public " + signature.getReturnType().toString() + " " + signature.getMethodName() + "() { }";
+    public String generate(ClientGenerator generator) {
+        return  "public " + signature.getReturnType().toString() + " " + signature.getMethodName() + "() { " + generator.generate(this) + " }";
     }
 }

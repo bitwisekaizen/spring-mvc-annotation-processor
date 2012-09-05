@@ -9,8 +9,10 @@ public class SpringControllerAnnotationProcessor {
 
     private File file;
     private List<ClientStub> stubs = new ArrayList<ClientStub>();
+    private ClientGenerator clientGenerator;
 
-    public SpringControllerAnnotationProcessor(File file) {
+    public SpringControllerAnnotationProcessor(ClientGenerator clientGenerator, File file) {
+        this.clientGenerator = clientGenerator;
         this.file = file;
     }
 
@@ -20,7 +22,7 @@ public class SpringControllerAnnotationProcessor {
             fileContents.append("public class " + file.getName().replaceFirst("(.$?)\\.java", "$1") + " {");
 
             for (ClientStub stub : stubs) {
-                fileContents.append(stub);
+                fileContents.append(stub.generate(clientGenerator));
             }
 
             fileContents.append("}");
