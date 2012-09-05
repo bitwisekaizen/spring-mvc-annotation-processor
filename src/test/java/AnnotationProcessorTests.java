@@ -3,6 +3,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -26,7 +27,7 @@ public class AnnotationProcessorTests {
 
         assertEquals(FileUtils.sizeOf(clientFile), 0, "Non-zero initial file size.");
 
-        BetterProcessor processor = new BetterProcessor(clientFile);
+        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientFile);
         MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
         processor.addStub(new ClientStub(methodSignature, processorRequestMapping));
@@ -38,11 +39,18 @@ public class AnnotationProcessorTests {
         assertTrue(FileUtils.sizeOf(clientFile) != 0, "Client file size did not increase.");
 
         // inverse process the java source to extract the method signatures
-        InverseProcessor inverseProcessor = new InverseProcessor(clientFile, testClasses);
+        InverseSpringControllerAnnotationProcessor inverseProcessor = new InverseSpringControllerAnnotationProcessor(clientFile, testClasses);
 
         inverseProcessor.process();
 
-        assertEquals(inverseProcessor.getMethodSignatures().size(), 1, "Expected a single method signature in inverse processor.");
+        List<MethodSignature> inverseProcessorMethodSignatures = inverseProcessor.getMethodSignatures();
+        assertEquals(inverseProcessorMethodSignatures.size(), 1, "Expected a single method signature in inverse processor.");
+        MethodSignature inverseProcessorMethodSignature = inverseProcessorMethodSignatures.get(0);
+        assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
     }
 
+    private void assertMethodSignaturesAreSame(MethodSignature actual, MethodSignature expected) {
+        assertEquals(actual.getReturnType(), expected.getReturnType(), "Method signature return types differ.");
+        assertEquals(actual.getMethodName(), expected.getMethodName(), "Method names differ.");
+    }
 }

@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class InverseProcessor {
+public class InverseSpringControllerAnnotationProcessor {
 
     private File sourceFile;
     private File outputDirectory;
     private List<MethodSignature> methodSignatures = new ArrayList<MethodSignature>();
 
-    public InverseProcessor(File sourceFile, File outputDirectory) {
+    public InverseSpringControllerAnnotationProcessor(File sourceFile, File outputDirectory) {
         this.sourceFile = sourceFile;
         this.outputDirectory = outputDirectory;
     }

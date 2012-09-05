@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BetterProcessor {
+public class SpringControllerAnnotationProcessor {
 
     private File file;
     private List<ClientStub> stubs = new ArrayList<ClientStub>();
 
-    public BetterProcessor(File file) {
+    public SpringControllerAnnotationProcessor(File file) {
         this.file = file;
     }
 
