@@ -39,6 +39,11 @@ public class AnnotationProcessorTests {
         canProcessRequestMapping(Integer.class);
     }
 
+    @Test
+    public void canProcessRequestMappingWithPrimitiveReturnType() throws IOException {
+        canProcessRequestMapping(int.class);
+    }
+
     private void canProcessRequestMapping(Class<?> returnType) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
 
