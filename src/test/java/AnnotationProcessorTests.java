@@ -50,7 +50,7 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        canProcessRequestMapping(void.class, asList(new RequestParameter(String.class, "param"), new RequestParameter(Integer.class, "anotherparam")));
+        canProcessRequestMapping(void.class, asList(new RequestParameter(String.class, "param"), new RequestParameter(Integer.class, "anotherparam"), new RequestParameter(Integer.class, "onemoreofthesametype")));
     }
 
     private void canProcessRequestMapping(Class<?> returnType) throws IOException {
@@ -114,7 +114,7 @@ public class AnnotationProcessorTests {
 
     private void incrementTypeCount(Map<Class<?>, Integer> typeCount, Class<?> type) {
         if (typeCount.containsKey(type)) {
-            typeCount.put(type, typeCount.get(typeCount) + 1);
+            typeCount.put(type, typeCount.get(type) + 1);
         } else {
             typeCount.put(type, 1);
         }
