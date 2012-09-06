@@ -19,12 +19,12 @@ public class SpringControllerAnnotationProcessor {
     public void process() {
         try {
             List<String> fileContents = new ArrayList<String>();
-            fileContents.add("public class " + file.getName().replaceFirst("(.$?)\\.java", "$1") + " {");
+            fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
 
             for (ClientStub stub : stubs) {
                 // generate signature and method contents
                 MethodSignature signature = stub.getMethodSignature();
-                fileContents.add("public " + signature.getReturnType().toString() + " " + signature.getMethodName() + "() { ");
+                fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName() + "() { ");
                 fileContents.add(sourceGenerator.generate(stub));
                 fileContents.add("}");
             }
