@@ -34,7 +34,7 @@ public class AnnotationProcessorTests {
     }
 
     @Test
-    public void canProcessSimpleRequestWithVoidReturnType() throws IOException {
+    public void canProcessRequestMappingWithVoidReturnType() throws IOException {
         canProcessRequestMapping(void.class);
     }
 
