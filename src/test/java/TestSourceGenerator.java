@@ -1,13 +1,22 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestSourceGenerator implements SourceGenerator {
 
-    public String generate(ClientStub stub) {
-
+    public List<String> generate(ClientStub stub) {
+        List<String> source = new ArrayList<String>();
         Class<?> returnType = stub.getMethodSignature().getReturnType();
-        if (returnType.equals(void.class)) {
-            return "";
-        } else if (returnType.isPrimitive()) {
-            return "return 0;";
+        for (RequestParameter requestParameter : stub.getRequestParameters()) {
+            source.add(requestParameter.getName() + ".toString();");
         }
-        return "return null;";
+        if (returnType.equals(void.class)) {
+            return source;
+        } else if (returnType.isPrimitive()) {
+            source.add("return 0;");
+            return source;
+        }
+
+        source.add("return null;");
+        return source;
     }
 }

@@ -1,3 +1,5 @@
+import java.util.List;
+
 public interface SourceGenerator {
-    String generate(ClientStub stub);
+    List<String> generate(ClientStub stub);
 }

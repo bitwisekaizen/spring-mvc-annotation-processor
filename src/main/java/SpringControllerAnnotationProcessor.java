@@ -38,7 +38,7 @@ public class SpringControllerAnnotationProcessor {
                     fileContents.removeLast();
                 }
                 fileContents.add(") {");
-                fileContents.add(sourceGenerator.generate(stub));
+                fileContents.addAll(sourceGenerator.generate(stub));
                 fileContents.add("}");
             }
 
