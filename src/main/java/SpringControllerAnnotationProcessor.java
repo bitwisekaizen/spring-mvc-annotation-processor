@@ -3,6 +3,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SpringControllerAnnotationProcessor {
@@ -18,7 +19,7 @@ public class SpringControllerAnnotationProcessor {
 
     public void process() {
         try {
-            List<String> fileContents = new ArrayList<String>();
+            LinkedList<String> fileContents = new LinkedList<String>();
             fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
 
             for (ClientStub stub : stubs) {
@@ -26,9 +27,15 @@ public class SpringControllerAnnotationProcessor {
                 MethodSignature signature = stub.getMethodSignature();
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
                 fileContents.add("(");
+
                 // add request parameters
-                for (RequestParameter requestParameter : stub.getRequestParameters()) {
+                List<RequestParameter> requestParameters = stub.getRequestParameters();
+                for (RequestParameter requestParameter : requestParameters) {
                     fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
+                    fileContents.add(", ");
+                }
+                if (requestParameters.size() != 0) {
+                    fileContents.removeLast();
                 }
                 fileContents.add(") {");
                 fileContents.add(sourceGenerator.generate(stub));

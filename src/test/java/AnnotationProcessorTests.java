@@ -4,9 +4,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -47,7 +50,7 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        canProcessRequestMapping(void.class, Arrays.asList(new RequestParameter(String.class, "param")));
+        canProcessRequestMapping(void.class, asList(new RequestParameter(String.class, "param"), new RequestParameter(Integer.class, "anotherparam")));
     }
 
     private void canProcessRequestMapping(Class<?> returnType) throws IOException {
@@ -88,8 +91,42 @@ public class AnnotationProcessorTests {
         assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
         assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size(), "Number of method parameters differ from number of request parameters.");
         if (requestParameters != null) {
-            assertEquals(inverseProcessorMethodSignature.getParameters().get(0).getType(), stub.getRequestParameters().get(0).getType());
+            Map<Class<?>, Integer> requestParamTypeCount = getRequestParameterTypeCount(stub);
+            Map<Class<?>, Integer> methodParamTypeCount = getMethodParameterTypeCount(inverseProcessorMethodSignature);
+            Set<Class<?>> requestParamTypes = requestParamTypeCount.keySet();
+            assertEquals(requestParamTypes, methodParamTypeCount.keySet());
+            for (Class<?> requestParamType : requestParamTypes) {
+                assertTrue(methodParamTypeCount.containsKey(requestParamType));
+                assertEquals(requestParamTypeCount.get(requestParamType), methodParamTypeCount.get(requestParamType));
+            }
+
         }
+    }
+
+    private Map<Class<?>, Integer> getMethodParameterTypeCount(MethodSignature methodSignature) {
+        Map<Class<?>, Integer> typeCount = new HashMap<Class<?>, Integer>();
+        for (MethodParameter parameter : methodSignature.getParameters()) {
+            Class<?> type = parameter.getType();
+            incrementTypeCount(typeCount, type);
+        }
+        return typeCount;
+    }
+
+    private void incrementTypeCount(Map<Class<?>, Integer> typeCount, Class<?> type) {
+        if (typeCount.containsKey(type)) {
+            typeCount.put(type, typeCount.get(typeCount) + 1);
+        } else {
+            typeCount.put(type, 1);
+        }
+    }
+
+    private Map<Class<?>, Integer> getRequestParameterTypeCount(ClientStub stub) {
+        Map<Class<?>, Integer> typeCount = new HashMap<Class<?>, Integer>();
+        for (RequestParameter parameter : stub.getRequestParameters()) {
+            Class<?> type = parameter.getType();
+            incrementTypeCount(typeCount, type);
+        }
+        return typeCount;
     }
 
     private void assertMethodSignaturesAreSame(MethodSignature actual, MethodSignature expected) {
