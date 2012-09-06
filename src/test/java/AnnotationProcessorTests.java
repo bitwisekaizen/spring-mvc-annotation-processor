@@ -31,26 +31,36 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessSimpleRequestWithVoidReturnType() throws IOException {
-        canProcessRequestMapping(void.class);
+        canProcessRequestMapping(void.class, null);
     }
 
     @Test
     public void canProcessRequestMappingWithNonPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(Integer.class);
+        canProcessRequestMapping(Integer.class, null);
     }
 
     @Test
     public void canProcessRequestMappingWithPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(int.class);
+        canProcessRequestMapping(int.class, null);
     }
 
-    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
+    @Test
+    public void canProcessRequestMappingWithSingleRequestParameter() throws IOException {
+        canProcessRequestMapping(void.class, new RequestParameter(String.class, "param"));
+    }
+
+    private void canProcessRequestMapping(Class<?> returnType, RequestParameter requestParameter) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
 
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
         MethodSignature methodSignature = new MethodSignature(returnType, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
-        processor.addStub(new ClientStub(methodSignature, processorRequestMapping));
+        ClientStub stub = new ClientStub(methodSignature, processorRequestMapping);
+        if (requestParameter != null) {
+            stub.addRequestParameter(requestParameter);
+        }
+
+        processor.addStub(stub);
 
         // this should produce the client stub...
         processor.process();
@@ -67,6 +77,7 @@ public class AnnotationProcessorTests {
         assertEquals(inverseProcessorMethodSignatures.size(), 1, "Expected a single method signature in inverse processor.");
         MethodSignature inverseProcessorMethodSignature = inverseProcessorMethodSignatures.get(0);
         assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
+        assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size(), "Number of method parameters differ from number of request parameters.");
     }
 
     private void assertMethodSignaturesAreSame(MethodSignature actual, MethodSignature expected) {

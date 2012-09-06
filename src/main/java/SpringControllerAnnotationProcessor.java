@@ -24,7 +24,13 @@ public class SpringControllerAnnotationProcessor {
             for (ClientStub stub : stubs) {
                 // generate signature and method contents
                 MethodSignature signature = stub.getMethodSignature();
-                fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName() + "() { ");
+                fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
+                fileContents.add("(");
+                // add request parameters
+                for (RequestParameter requestParameter : stub.getRequestParameters()) {
+                    fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
+                }
+                fileContents.add(") {");
                 fileContents.add(sourceGenerator.generate(stub));
                 fileContents.add("}");
             }
