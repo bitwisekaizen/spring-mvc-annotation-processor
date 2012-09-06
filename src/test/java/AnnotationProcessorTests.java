@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -31,33 +32,41 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessSimpleRequestWithVoidReturnType() throws IOException {
-        canProcessRequestMapping(void.class, null);
+        canProcessRequestMapping(void.class);
     }
 
     @Test
     public void canProcessRequestMappingWithNonPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(Integer.class, null);
+        canProcessRequestMapping(Integer.class);
     }
 
     @Test
     public void canProcessRequestMappingWithPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(int.class, null);
+        canProcessRequestMapping(int.class);
     }
 
     @Test
-    public void canProcessRequestMappingWithSingleRequestParameter() throws IOException {
-        canProcessRequestMapping(void.class, new RequestParameter(String.class, "param"));
+    public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
+        canProcessRequestMapping(void.class, Arrays.asList(new RequestParameter(String.class, "param")));
     }
 
-    private void canProcessRequestMapping(Class<?> returnType, RequestParameter requestParameter) throws IOException {
+    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
+        canProcessRequestMapping(returnType, null);
+    }
+
+    private void canProcessRequestMapping(Class<?> returnType, List<RequestParameter> requestParameters) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
 
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
         MethodSignature methodSignature = new MethodSignature(returnType, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
         ClientStub stub = new ClientStub(methodSignature, processorRequestMapping);
-        if (requestParameter != null) {
-            stub.addRequestParameter(requestParameter);
+
+        // add request parameters
+        if (requestParameters != null) {
+            for (RequestParameter requestParameter : requestParameters) {
+                stub.addRequestParameter(requestParameter);
+            }
         }
 
         processor.addStub(stub);
@@ -78,6 +87,9 @@ public class AnnotationProcessorTests {
         MethodSignature inverseProcessorMethodSignature = inverseProcessorMethodSignatures.get(0);
         assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
         assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size(), "Number of method parameters differ from number of request parameters.");
+        if (requestParameters != null) {
+            assertEquals(inverseProcessorMethodSignature.getParameters().get(0).getType(), stub.getRequestParameters().get(0).getType());
+        }
     }
 
     private void assertMethodSignaturesAreSame(MethodSignature actual, MethodSignature expected) {

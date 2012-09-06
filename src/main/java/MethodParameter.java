@@ -1,5 +1,11 @@
 public class MethodParameter {
-    public MethodParameter(Class<?> parameterType) {
-        //To change body of created methods use File | Settings | File Templates.
+    private Class<?> type;
+
+    public MethodParameter(Class<?> type) {
+        this.type = type;
+    }
+
+    public Class<?> getType() {
+        return type;
     }
 }
