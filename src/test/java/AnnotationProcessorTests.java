@@ -1,4 +1,5 @@
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -13,25 +14,36 @@ public class AnnotationProcessorTests {
 
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
     private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/target/test-classes";
+    private File testClassesDirectory;
+    private File generatedSource;
 
-    @Test
-    public void canProcessSimpleRequestMapping() throws IOException {
+    @BeforeMethod
+    public void setup() throws IOException {
         File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
         generatedSourcesDirectory.mkdirs();
 
-        File testClassesDirectory = new File(TEST_CLASSES_DIR);
+        testClassesDirectory = new File(TEST_CLASSES_DIR);
         testClassesDirectory.mkdirs();
 
-        File generatedSource = File.createTempFile("ClientStub", ".java", generatedSourcesDirectory);
+        generatedSource = File.createTempFile("ClientStub", ".java", generatedSourcesDirectory);
         generatedSource.deleteOnExit();
+    }
 
-        assertEquals(FileUtils.sizeOf(generatedSource), 0, "Non-zero initial file size.");
+    @Test
+    public void canProcessSimpleRequestWithVoidReturnType() throws IOException {
+        canProcessRequestMapping(void.class);
+    }
 
-        // this is the extension point...this generates the source inside of the client method
+    @Test
+    public void canProcessRequestMappingWithNonPrimitiveReturnType() throws IOException {
+        canProcessRequestMapping(Integer.class);
+    }
+
+    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
 
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
-        MethodSignature methodSignature = new MethodSignature(void.class, "methodname");
+        MethodSignature methodSignature = new MethodSignature(returnType, "methodname");
         MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
         processor.addStub(new ClientStub(methodSignature, processorRequestMapping));
 
