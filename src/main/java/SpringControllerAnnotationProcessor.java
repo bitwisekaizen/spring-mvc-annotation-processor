@@ -37,6 +37,12 @@ public class SpringControllerAnnotationProcessor {
                 if (requestParameters.size() != 0) {
                     fileContents.removeLast();
                 }
+
+                // add path variables
+                List<PathVariable> pathVariables = stub.getPathVariables();
+                for (PathVariable pathVariable : pathVariables) {
+                     fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
+                }
                 fileContents.add(") {");
                 fileContents.addAll(sourceGenerator.generate(stub));
                 fileContents.add("}");

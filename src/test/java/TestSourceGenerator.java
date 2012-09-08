@@ -9,6 +9,9 @@ public class TestSourceGenerator implements SourceGenerator {
         for (RequestParameter requestParameter : stub.getRequestParameters()) {
             source.add(requestParameter.getName() + ".toString();");
         }
+        for (PathVariable pathVariable : stub.getPathVariables()) {
+            source.add(pathVariable.getName() + ".toString();");
+        }
         if (returnType.equals(void.class)) {
             return source;
         } else if (returnType.isPrimitive()) {

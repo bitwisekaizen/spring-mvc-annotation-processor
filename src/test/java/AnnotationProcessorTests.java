@@ -53,11 +53,20 @@ public class AnnotationProcessorTests {
         canProcessRequestMapping(void.class, asList(new RequestParameter(String.class, "param"), new RequestParameter(Integer.class, "anotherparam"), new RequestParameter(Integer.class, "onemoreofthesametype")));
     }
 
-    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
-        canProcessRequestMapping(returnType, null);
+    @Test
+    public void canProcessRequestMappingWithSinglePathVariable() throws IOException {
+        canProcessRequestMapping(void.class, null, asList(new PathVariable(String.class, "somekindofpathvariable")));
     }
 
     private void canProcessRequestMapping(Class<?> returnType, List<RequestParameter> requestParameters) throws IOException {
+        canProcessRequestMapping(returnType, requestParameters, null);
+    }
+
+    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
+        canProcessRequestMapping(returnType, null, null);
+    }
+
+    private void canProcessRequestMapping(Class<?> returnType, List<RequestParameter> requestParameters, List<PathVariable> pathVariables) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
 
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
@@ -69,6 +78,13 @@ public class AnnotationProcessorTests {
         if (requestParameters != null) {
             for (RequestParameter requestParameter : requestParameters) {
                 stub.addRequestParameter(requestParameter);
+            }
+        }
+
+        // add path variables
+        if (pathVariables != null) {
+            for (PathVariable pathVariable : pathVariables) {
+                stub.addPathVariable(pathVariable);
             }
         }
 
@@ -89,16 +105,19 @@ public class AnnotationProcessorTests {
         assertEquals(inverseProcessorMethodSignatures.size(), 1, "Expected a single method signature in inverse processor.");
         MethodSignature inverseProcessorMethodSignature = inverseProcessorMethodSignatures.get(0);
         assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
-        assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size(), "Number of method parameters differ from number of request parameters.");
+        assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size() + stub.getPathVariables().size(), "Number of method parameters differ from number of request parameters.");
         if (requestParameters != null) {
-            Map<Class<?>, Integer> requestParamTypeCount = getRequestParameterTypeCount(stub);
+            Map<Class<?>, Integer> stubTypeCount = getStubTypeCount(stub);
             Map<Class<?>, Integer> methodParamTypeCount = getMethodParameterTypeCount(inverseProcessorMethodSignature);
-            Set<Class<?>> requestParamTypes = requestParamTypeCount.keySet();
-            assertEquals(requestParamTypes, methodParamTypeCount.keySet());
-            for (Class<?> requestParamType : requestParamTypes) {
+            Set<Class<?>> stubParamTypes = stubTypeCount.keySet();
+            assertEquals(stubParamTypes, methodParamTypeCount.keySet());
+            for (Class<?> requestParamType : stubParamTypes) {
                 assertTrue(methodParamTypeCount.containsKey(requestParamType));
-                assertEquals(requestParamTypeCount.get(requestParamType), methodParamTypeCount.get(requestParamType));
+                assertEquals(stubTypeCount.get(requestParamType), methodParamTypeCount.get(requestParamType));
             }
+        }
+
+        if (pathVariables != null) {
 
         }
     }
@@ -120,11 +139,13 @@ public class AnnotationProcessorTests {
         }
     }
 
-    private Map<Class<?>, Integer> getRequestParameterTypeCount(ClientStub stub) {
+    private Map<Class<?>, Integer> getStubTypeCount(ClientStub stub) {
         Map<Class<?>, Integer> typeCount = new HashMap<Class<?>, Integer>();
         for (RequestParameter parameter : stub.getRequestParameters()) {
-            Class<?> type = parameter.getType();
-            incrementTypeCount(typeCount, type);
+            incrementTypeCount(typeCount, parameter.getType());
+        }
+        for (PathVariable pathVariable : stub.getPathVariables()) {
+            incrementTypeCount(typeCount, pathVariable.getType());
         }
         return typeCount;
     }

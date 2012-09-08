@@ -5,8 +5,4 @@ public class MethodRequestMapping {
     public MethodRequestMapping(String endpoint) {
         this.endpoint = endpoint;
     }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
 }
