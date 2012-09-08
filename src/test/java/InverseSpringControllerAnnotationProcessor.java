@@ -1,3 +1,5 @@
+import com.thegrayfiles.MethodParameter;
+import com.thegrayfiles.MethodSignature;
 import org.apache.commons.io.FileUtils;
 
 import javax.tools.JavaCompiler;

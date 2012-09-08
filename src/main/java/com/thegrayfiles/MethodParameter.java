@@ -1,3 +1,5 @@
+package com.thegrayfiles;
+
 public class MethodParameter {
     private Class<?> type;
 

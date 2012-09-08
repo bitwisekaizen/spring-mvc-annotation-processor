@@ -1,3 +1,5 @@
+package com.thegrayfiles;
+
 public class PathVariable {
     private String name;
     private Class<?> type;

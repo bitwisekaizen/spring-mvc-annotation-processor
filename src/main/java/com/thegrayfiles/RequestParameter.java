@@ -1,3 +1,5 @@
+package com.thegrayfiles;
+
 public class RequestParameter {
     private Class<?> type;
     private String name;

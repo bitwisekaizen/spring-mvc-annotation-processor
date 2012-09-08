@@ -1,3 +1,10 @@
+import com.thegrayfiles.ClientStub;
+import com.thegrayfiles.MethodParameter;
+import com.thegrayfiles.MethodSignature;
+import com.thegrayfiles.PathVariable;
+import com.thegrayfiles.RequestParameter;
+import com.thegrayfiles.SourceGenerator;
+import com.thegrayfiles.SpringControllerAnnotationProcessor;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -9,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
+import static com.thegrayfiles.builders.ClientStubBuilder.aStub;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -35,58 +42,40 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessRequestMappingWithVoidReturnType() throws IOException {
-        canProcessRequestMapping(void.class);
+        ClientStub stub = aStub().thatReturns(void.class).build();
+        canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithNonPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(Integer.class);
+        ClientStub stub = aStub().thatReturns(Integer.class).build();
+        canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithPrimitiveReturnType() throws IOException {
-        canProcessRequestMapping(int.class);
+        ClientStub stub = aStub().thatReturns(int.class).build();
+        canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        canProcessRequestMapping(void.class, asList(new RequestParameter(String.class, "param"), new RequestParameter(Integer.class, "anotherparam"), new RequestParameter(Integer.class, "onemoreofthesametype")));
+        ClientStub stub = aStub()
+                .withRequestParam(new RequestParameter(String.class, "param"))
+                .withRequestParam(new RequestParameter(Integer.class, "anotherparam"))
+                .withRequestParam(new RequestParameter(Integer.class, "onemoreofthesametype")).build();
+        canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithSinglePathVariable() throws IOException {
-        canProcessRequestMapping(void.class, null, asList(new PathVariable(String.class, "somekindofpathvariable")));
+        ClientStub stub = aStub().withPathVariable(new PathVariable(String.class, "somekindofpathvariable")).build();
+        canProcessRequestMapping(stub);
     }
 
-    private void canProcessRequestMapping(Class<?> returnType, List<RequestParameter> requestParameters) throws IOException {
-        canProcessRequestMapping(returnType, requestParameters, null);
-    }
-
-    private void canProcessRequestMapping(Class<?> returnType) throws IOException {
-        canProcessRequestMapping(returnType, null, null);
-    }
-
-    private void canProcessRequestMapping(Class<?> returnType, List<RequestParameter> requestParameters, List<PathVariable> pathVariables) throws IOException {
+    private void canProcessRequestMapping(ClientStub stub) throws IOException {
         SourceGenerator clientGenerator = new TestSourceGenerator();
-
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor(clientGenerator, generatedSource);
-        MethodSignature methodSignature = new MethodSignature(returnType, "methodname");
-        MethodRequestMapping processorRequestMapping = new MethodRequestMapping("endpoint");
-        ClientStub stub = new ClientStub(methodSignature, processorRequestMapping);
-
-        // add request parameters
-        if (requestParameters != null) {
-            for (RequestParameter requestParameter : requestParameters) {
-                stub.addRequestParameter(requestParameter);
-            }
-        }
-
-        // add path variables
-        if (pathVariables != null) {
-            for (PathVariable pathVariable : pathVariables) {
-                stub.addPathVariable(pathVariable);
-            }
-        }
 
         processor.addStub(stub);
 
@@ -104,21 +93,16 @@ public class AnnotationProcessorTests {
         List<MethodSignature> inverseProcessorMethodSignatures = inverseProcessor.getMethodSignatures();
         assertEquals(inverseProcessorMethodSignatures.size(), 1, "Expected a single method signature in inverse processor.");
         MethodSignature inverseProcessorMethodSignature = inverseProcessorMethodSignatures.get(0);
-        assertMethodSignaturesAreSame(inverseProcessorMethodSignature, methodSignature);
+        assertMethodSignaturesAreSame(inverseProcessorMethodSignature, stub.getMethodSignature());
         assertEquals(inverseProcessorMethodSignature.getParameters().size(), stub.getRequestParameters().size() + stub.getPathVariables().size(), "Number of method parameters differ from number of request parameters.");
-        if (requestParameters != null) {
-            Map<Class<?>, Integer> stubTypeCount = getStubTypeCount(stub);
-            Map<Class<?>, Integer> methodParamTypeCount = getMethodParameterTypeCount(inverseProcessorMethodSignature);
-            Set<Class<?>> stubParamTypes = stubTypeCount.keySet();
-            assertEquals(stubParamTypes, methodParamTypeCount.keySet());
-            for (Class<?> requestParamType : stubParamTypes) {
-                assertTrue(methodParamTypeCount.containsKey(requestParamType));
-                assertEquals(stubTypeCount.get(requestParamType), methodParamTypeCount.get(requestParamType));
-            }
-        }
 
-        if (pathVariables != null) {
-
+        Map<Class<?>, Integer> stubTypeCount = getStubTypeCount(stub);
+        Map<Class<?>, Integer> methodParamTypeCount = getMethodParameterTypeCount(inverseProcessorMethodSignature);
+        Set<Class<?>> stubParamTypes = stubTypeCount.keySet();
+        assertEquals(stubParamTypes, methodParamTypeCount.keySet());
+        for (Class<?> requestParamType : stubParamTypes) {
+            assertTrue(methodParamTypeCount.containsKey(requestParamType));
+            assertEquals(stubTypeCount.get(requestParamType), methodParamTypeCount.get(requestParamType));
         }
     }
 

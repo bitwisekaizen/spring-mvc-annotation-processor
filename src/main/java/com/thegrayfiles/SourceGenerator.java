@@ -1,3 +1,5 @@
+package com.thegrayfiles;
+
 import java.util.List;
 
 public interface SourceGenerator {

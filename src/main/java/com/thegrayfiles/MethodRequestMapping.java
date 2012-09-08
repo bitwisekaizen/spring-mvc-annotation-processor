@@ -1,3 +1,5 @@
+package com.thegrayfiles;
+
 public class MethodRequestMapping {
 
     private String endpoint;
