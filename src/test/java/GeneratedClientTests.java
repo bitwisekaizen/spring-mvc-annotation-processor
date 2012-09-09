@@ -15,10 +15,12 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 @Test
 public class GeneratedClientTests {
@@ -67,23 +69,25 @@ public class GeneratedClientTests {
             throw new RuntimeException("Class failed to compile.");
         }
 
-        assertTrue(processor.isRun(), "Processor hasn't run.");
+        assertEquals(processor.getTypeElements().size(), 1, "Expected exactly one request mapping.");
     }
 
-    @SupportedAnnotationTypes(value= "*")
+    @SupportedAnnotationTypes(value= "org.springframework.web.bind.annotation.RequestMapping")
     @SupportedSourceVersion(SourceVersion.RELEASE_6)
     public class CompileTimeAnnotationProcessor extends AbstractProcessor {
 
-        private boolean hasRun = false;
+        private List<TypeElement> typeElements = new ArrayList<TypeElement>();
 
         @Override
         public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-            hasRun = true;
+            for (TypeElement typeElement : typeElements) {
+                this.typeElements.add(typeElement);
+            }
             return true;
         }
 
-        public boolean isRun() {
-            return hasRun;
+        public List<TypeElement> getTypeElements() {
+            return typeElements;
         }
     }
 }
