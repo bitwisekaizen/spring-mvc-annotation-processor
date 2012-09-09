@@ -1,5 +1,8 @@
+import com.thegrayfiles.ClientStub;
+import com.thegrayfiles.MethodSignature;
 import com.thegrayfiles.RestTemplatePoweredClientSourceGenerator;
 import com.thegrayfiles.SpringControllerAnnotationProcessor;
+import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
 import org.testng.annotations.Test;
 
@@ -8,6 +11,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -20,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 @Test
@@ -70,6 +75,31 @@ public class GeneratedClientTests {
         }
 
         assertEquals(processor.getTypeElements().size(), 1, "Expected exactly one request mapping.");
+    }
+
+    @Test
+    public void canConvertTypeElementToClientStub() {
+        TypeElementAdapter typeElementAdapter = new TypeElementAdapter();
+        TypeElement typeElement = Mockito.mock(TypeElement.class);
+        Name methodName = Mockito.mock(Name.class);
+
+        // mock out the response to
+        when(typeElement.getSimpleName()).thenReturn(methodName);
+        when(methodName.toString()).thenReturn("name");
+
+        ClientStub stub = typeElementAdapter.convert(typeElement);
+
+        assertEquals(stub.getMethodSignature().getMethodName(), "name");
+    }
+
+    public class TypeElementAdapter {
+
+        public ClientStub convert(TypeElement typeElement) {
+            String methodName = typeElement.getSimpleName().toString();
+            MethodSignature methodSignature = new MethodSignature(void.class, methodName);
+            ClientStub stub = new ClientStub(methodSignature, null);
+            return stub;
+        }
     }
 
     @SupportedAnnotationTypes(value= "org.springframework.web.bind.annotation.RequestMapping")
