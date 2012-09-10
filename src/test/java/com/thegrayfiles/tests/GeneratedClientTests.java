@@ -1,6 +1,7 @@
 package com.thegrayfiles.tests;
 
 import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.RequestParameter;
 import com.thegrayfiles.generator.RestTemplatePoweredClientSourceGenerator;
 import com.thegrayfiles.generator.SpringControllerClientSourceGenerator;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
@@ -14,6 +15,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.JavaCompiler;
@@ -22,10 +24,11 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -51,7 +54,7 @@ public class GeneratedClientTests {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
+        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(sourceFile));
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
 
         if (!task.call()) {
@@ -67,9 +70,9 @@ public class GeneratedClientTests {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
+        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(sourceFile));
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
-        task.setProcessors(Arrays.asList(processor));
+        task.setProcessors(asList(processor));
 
         if (!task.call()) {
             throw new RuntimeException("Class failed to compile.");
@@ -103,23 +106,35 @@ public class GeneratedClientTests {
         ProcessingEnvironment processingEnvironment = mockProcessingEnvironment(typeMirror, returnType);
 
         List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
-        assertEquals(stubs.get(0).getMethodSignature().getMethodName(), stringMethodName);
-        assertEquals(stubs.get(0).getMethodSignature().getReturnType(), returnTypeClass);
+        ClientMethod stub = stubs.get(0);
+        assertEquals(stub.getMethodSignature().getMethodName(), stringMethodName);
+        assertEquals(stub.getMethodSignature().getReturnType(), returnTypeClass);
+        assertEquals(stub.getMethodSignature().getParameters().size(), 1, "Expected exactly one parameter.");
+
+        RequestParameter requestParameter = stub.getRequestParameters().get(0);
+        assertEquals(requestParameter.getName(), "requestParam");
+        assertEquals(requestParameter.getType(), Integer.class);
     }
 
     private RoundEnvironment mockRoundEnvironment(String stringMethodName, Class<?> returnTypeClass, TypeMirror typeMirror, Element returnTypeElement) {
 
         ExecutableElement executableMethod = mock(ExecutableElement.class);
         RoundEnvironment roundEnvironment = mock(RoundEnvironment.class);
+        VariableElement requestParameter = mock(VariableElement.class);
+        List requestParameters = new ArrayList();
+        requestParameters.add(requestParameter);
 
         Name methodName = mock(Name.class);
+        Name requestParameterName = mock(Name.class);
 
         when(returnTypeElement.toString()).thenReturn(returnTypeClass.getCanonicalName());
         when(methodName.toString()).thenReturn(stringMethodName);
         when(executableMethod.getReturnType()).thenReturn(typeMirror);
         when(executableMethod.getSimpleName()).thenReturn(methodName);
-
-        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(Arrays.asList(executableMethod)));
+        when(executableMethod.getParameters()).thenReturn(requestParameters);
+        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(asList(executableMethod)));
+        when(requestParameter.getSimpleName()).thenReturn(requestParameterName);
+        when(requestParameterName.toString()).thenReturn("requestParam");
         return roundEnvironment;
     }
 

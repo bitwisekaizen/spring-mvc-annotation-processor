@@ -1,6 +1,8 @@
 package com.thegrayfiles.processor;
 
 import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -8,6 +10,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +30,12 @@ public class TypeElementToClientStubConverter {
                 Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                stubs.add(new ClientMethod(methodSignature, null));
+                ClientMethod clientMethod = new ClientMethod(methodSignature, null);
+                for (VariableElement parameter : executableMethod.getParameters()) {
+                    methodSignature.addParameter(new MethodParameter(parameter.getClass()));
+                    clientMethod.addRequestParameter(new RequestParameter(Integer.class, parameter.getSimpleName().toString()));
+                }
+                stubs.add(clientMethod);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Class not found.");
             }
