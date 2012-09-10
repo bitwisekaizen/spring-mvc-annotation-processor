@@ -1,4 +1,6 @@
-package com.thegrayfiles;
+package com.thegrayfiles.client;
+
+import com.thegrayfiles.method.MethodSignature;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.thegrayfiles.util;
 
-import com.thegrayfiles.MethodParameter;
-import com.thegrayfiles.MethodSignature;
+import com.thegrayfiles.method.MethodParameter;
+import com.thegrayfiles.method.MethodSignature;
 import org.apache.commons.io.FileUtils;
 
 import javax.tools.JavaCompiler;

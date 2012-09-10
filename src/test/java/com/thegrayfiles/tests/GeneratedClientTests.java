@@ -1,9 +1,9 @@
 package com.thegrayfiles.tests;
 
-import com.thegrayfiles.ClientMethod;
-import com.thegrayfiles.MethodSignature;
-import com.thegrayfiles.RestTemplatePoweredClientSourceGenerator;
-import com.thegrayfiles.SpringControllerClientSourceGenerator;
+import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.generator.RestTemplatePoweredClientSourceGenerator;
+import com.thegrayfiles.generator.SpringControllerClientSourceGenerator;
+import com.thegrayfiles.method.MethodSignature;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.testng.annotations.Test;

@@ -1,12 +1,12 @@
 package com.thegrayfiles.tests;
 
-import com.thegrayfiles.ClientMethod;
-import com.thegrayfiles.MethodImplementationSourceGenerator;
-import com.thegrayfiles.MethodParameter;
-import com.thegrayfiles.MethodSignature;
-import com.thegrayfiles.PathVariable;
-import com.thegrayfiles.RequestParameter;
-import com.thegrayfiles.SpringControllerClientSourceGenerator;
+import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.PathVariable;
+import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
+import com.thegrayfiles.generator.SpringControllerClientSourceGenerator;
+import com.thegrayfiles.method.MethodParameter;
+import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
 import com.thegrayfiles.util.TestSourceGenerator;
 import org.apache.commons.io.FileUtils;

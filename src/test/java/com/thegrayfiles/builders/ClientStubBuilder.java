@@ -1,10 +1,10 @@
 package com.thegrayfiles.builders;
 
-import com.thegrayfiles.ClientMethod;
-import com.thegrayfiles.MethodRequestMapping;
-import com.thegrayfiles.MethodSignature;
-import com.thegrayfiles.PathVariable;
-import com.thegrayfiles.RequestParameter;
+import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.MethodRequestMapping;
+import com.thegrayfiles.client.PathVariable;
+import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.method.MethodSignature;
 
 import java.util.ArrayList;
 import java.util.List;

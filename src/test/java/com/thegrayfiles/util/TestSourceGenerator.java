@@ -1,9 +1,9 @@
 package com.thegrayfiles.util;
 
-import com.thegrayfiles.ClientMethod;
-import com.thegrayfiles.PathVariable;
-import com.thegrayfiles.RequestParameter;
-import com.thegrayfiles.MethodImplementationSourceGenerator;
+import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.PathVariable;
+import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

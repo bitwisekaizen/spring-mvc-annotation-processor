@@ -1,5 +1,9 @@
-package com.thegrayfiles;
+package com.thegrayfiles.generator;
 
+import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.client.PathVariable;
+import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.method.MethodSignature;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

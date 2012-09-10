@@ -1,4 +1,4 @@
-package com.thegrayfiles;
+package com.thegrayfiles.method;
 
 import java.util.ArrayList;
 import java.util.List;

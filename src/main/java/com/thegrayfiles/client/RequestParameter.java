@@ -1,4 +1,4 @@
-package com.thegrayfiles;
+package com.thegrayfiles.client;
 
 public class RequestParameter {
     private Class<?> type;
