@@ -3,21 +3,17 @@ package com.thegrayfiles.tests;
 import com.thegrayfiles.client.ClientMethod;
 import com.thegrayfiles.generator.RestTemplatePoweredClientSourceGenerator;
 import com.thegrayfiles.generator.SpringControllerClientSourceGenerator;
-import com.thegrayfiles.method.MethodSignature;
+import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
+import com.thegrayfiles.processor.TypeElementToClientStubConverter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.testng.annotations.Test;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.JavaCompiler;
@@ -26,10 +22,8 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 import static org.mockito.Mockito.mock;
@@ -68,7 +62,7 @@ public class GeneratedClientTests {
 
     @Test
     public void canRunSimpleAnnotationProcessor() throws IOException {
-        CompileTimeAnnotationProcessor processor = new CompileTimeAnnotationProcessor();
+        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
         File sourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -111,46 +105,5 @@ public class GeneratedClientTests {
         List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         assertEquals(stubs.get(0).getMethodSignature().getMethodName(), stringMethodName);
         assertEquals(stubs.get(0).getMethodSignature().getReturnType(), Integer.class);
-    }
-
-    public class TypeElementToClientStubConverter {
-
-        public List<ClientMethod> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
-            List<ClientMethod> stubs = new ArrayList<ClientMethod>();
-            Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
-            for (Element method : methods) {
-                try {
-                    String methodName = method.getSimpleName().toString();
-                    ExecutableElement executableMethod = (ExecutableElement) method;
-                    Element elementReturnType = processingEnv.getTypeUtils().asElement(executableMethod.getReturnType());
-                    Class<?> returnType = Class.forName(elementReturnType.toString());
-
-                    MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                    stubs.add(new ClientMethod(methodSignature, null));
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Class not found.");
-                }
-            }
-
-            return stubs;
-        }
-    }
-
-    @SupportedAnnotationTypes(value= "org.springframework.web.bind.annotation.RequestMapping")
-    @SupportedSourceVersion(SourceVersion.RELEASE_6)
-    public class CompileTimeAnnotationProcessor extends AbstractProcessor {
-
-        private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
-
-        @Override
-        public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-            TypeElementToClientStubConverter converter = new TypeElementToClientStubConverter();
-            stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
-            return true;
-        }
-
-        public List<ClientMethod> getStubs() {
-            return stubs;
-        }
     }
 }
