@@ -2,17 +2,22 @@ import com.thegrayfiles.ClientStub;
 import com.thegrayfiles.MethodSignature;
 import com.thegrayfiles.RestTemplatePoweredClientSourceGenerator;
 import com.thegrayfiles.SpringControllerAnnotationProcessor;
-import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.testng.annotations.Test;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -23,11 +28,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-@Test
 public class GeneratedClientTests {
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
     private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/src/test/java";
@@ -56,7 +62,6 @@ public class GeneratedClientTests {
             throw new RuntimeException("Class failed to compile.");
         }
 
-
     }
 
     @Test
@@ -74,31 +79,58 @@ public class GeneratedClientTests {
             throw new RuntimeException("Class failed to compile.");
         }
 
-        assertEquals(processor.getTypeElements().size(), 1, "Expected exactly one request mapping.");
+        assertEquals(processor.getStubs().size(), 1, "Expected exactly one request mapping.");
     }
 
     @Test
-    public void canConvertTypeElementToClientStub() {
-        TypeElementAdapter typeElementAdapter = new TypeElementAdapter();
-        TypeElement typeElement = Mockito.mock(TypeElement.class);
-        Name methodName = Mockito.mock(Name.class);
+    public void canConvertTypeElementToClientStub() throws ClassNotFoundException {
+        TypeElementToClientStubConverter typeElementAdapter = new TypeElementToClientStubConverter();
 
-        // mock out the response to
-        when(typeElement.getSimpleName()).thenReturn(methodName);
-        when(methodName.toString()).thenReturn("name");
+        ProcessingEnvironment processingEnvironment = mock(ProcessingEnvironment.class);
+        Types typeUtils = mock(Types.class);
+        ExecutableElement executableMethod = mock(ExecutableElement.class);
+        TypeMirror typeMirror = mock(TypeMirror.class);
+        Name methodName = mock(Name.class);
+        Element returnType = mock(Element.class);
+        RoundEnvironment roundEnvironment = mock(RoundEnvironment.class);
 
-        ClientStub stub = typeElementAdapter.convert(typeElement);
+        String stringMethodName = "someCrazyMethodName";
 
-        assertEquals(stub.getMethodSignature().getMethodName(), "name");
+        when(processingEnvironment.getTypeUtils()).thenReturn(typeUtils);
+        when(typeUtils.asElement(typeMirror)).thenReturn(returnType);
+        when(returnType.toString()).thenReturn("java.lang.Integer");
+        when(executableMethod.getSimpleName()).thenReturn(methodName);
+        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(Arrays.asList(executableMethod)));
+
+        when(methodName.toString()).thenReturn(stringMethodName);
+        when(executableMethod.getReturnType()).thenReturn(typeMirror);
+        when(typeMirror.toString()).thenReturn("void");
+
+        List<ClientStub> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
+        assertEquals(stubs.get(0).getMethodSignature().getMethodName(), stringMethodName);
+        assertEquals(stubs.get(0).getMethodSignature().getReturnType(), Integer.class);
     }
 
-    public class TypeElementAdapter {
+    public class TypeElementToClientStubConverter {
 
-        public ClientStub convert(TypeElement typeElement) {
-            String methodName = typeElement.getSimpleName().toString();
-            MethodSignature methodSignature = new MethodSignature(void.class, methodName);
-            ClientStub stub = new ClientStub(methodSignature, null);
-            return stub;
+        public List<ClientStub> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
+            List<ClientStub> stubs = new ArrayList<ClientStub>();
+            Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
+            for (Element method : methods) {
+                try {
+                    String methodName = method.getSimpleName().toString();
+                    ExecutableElement executableMethod = (ExecutableElement) method;
+                    Element elementReturnType = processingEnv.getTypeUtils().asElement(executableMethod.getReturnType());
+                    Class<?> returnType = Class.forName(elementReturnType.toString());
+
+                    MethodSignature methodSignature = new MethodSignature(returnType, methodName);
+                    stubs.add(new ClientStub(methodSignature, null));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Class not found.");
+                }
+            }
+
+            return stubs;
         }
     }
 
@@ -106,18 +138,17 @@ public class GeneratedClientTests {
     @SupportedSourceVersion(SourceVersion.RELEASE_6)
     public class CompileTimeAnnotationProcessor extends AbstractProcessor {
 
-        private List<TypeElement> typeElements = new ArrayList<TypeElement>();
+        private List<ClientStub> stubs = new ArrayList<ClientStub>();
 
         @Override
         public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-            for (TypeElement typeElement : typeElements) {
-                this.typeElements.add(typeElement);
-            }
+            TypeElementToClientStubConverter converter = new TypeElementToClientStubConverter();
+            stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
             return true;
         }
 
-        public List<TypeElement> getTypeElements() {
-            return typeElements;
+        public List<ClientStub> getStubs() {
+            return stubs;
         }
     }
 }

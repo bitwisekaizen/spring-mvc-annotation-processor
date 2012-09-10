@@ -7,7 +7,7 @@ public class TestController {
     public static final String TEST_REQUEST_MAPPING = "/test";
 
     @RequestMapping(value=TEST_REQUEST_MAPPING)
-    public void simple() {
-
+    public Integer simple() {
+        return 1;
     }
 }
