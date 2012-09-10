@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SpringControllerAnnotationProcessor {
+public class SpringControllerClientSourceGenerator {
 
     private File file;
-    private List<ClientStub> stubs = new ArrayList<ClientStub>();
-    private SourceGenerator sourceGenerator;
+    private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
+    private MethodImplementationSourceGenerator sourceGenerator;
 
-    public SpringControllerAnnotationProcessor(SourceGenerator sourceGenerator, File file) {
+    public SpringControllerClientSourceGenerator(MethodImplementationSourceGenerator sourceGenerator, File file) {
         this.sourceGenerator = sourceGenerator;
         this.file = file;
     }
@@ -24,7 +24,7 @@ public class SpringControllerAnnotationProcessor {
             LinkedList<String> fileContents = new LinkedList<String>();
             fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
 
-            for (ClientStub stub : stubs) {
+            for (ClientMethod stub : stubs) {
                 // generate signature and method contents
                 MethodSignature signature = stub.getMethodSignature();
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
@@ -58,7 +58,7 @@ public class SpringControllerAnnotationProcessor {
         }
     }
 
-    public void addStub(ClientStub stub) {
+    public void addStub(ClientMethod stub) {
         stubs.add(stub);
     }
 }

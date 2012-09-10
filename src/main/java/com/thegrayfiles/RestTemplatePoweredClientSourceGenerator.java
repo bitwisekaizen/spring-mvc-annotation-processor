@@ -2,9 +2,9 @@ package com.thegrayfiles;
 
 import java.util.List;
 
-public class RestTemplatePoweredClientSourceGenerator implements SourceGenerator {
+public class RestTemplatePoweredClientSourceGenerator implements MethodImplementationSourceGenerator {
 
-    public List<String> generate(ClientStub stub) {
+    public List<String> generate(ClientMethod stub) {
         return null;
     }
 }

@@ -1,7 +1,9 @@
-import com.thegrayfiles.ClientStub;
+package com.thegrayfiles.tests;
+
+import com.thegrayfiles.ClientMethod;
 import com.thegrayfiles.MethodSignature;
 import com.thegrayfiles.RestTemplatePoweredClientSourceGenerator;
-import com.thegrayfiles.SpringControllerAnnotationProcessor;
+import com.thegrayfiles.SpringControllerClientSourceGenerator;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.testng.annotations.Test;
@@ -36,7 +38,7 @@ import static org.testng.Assert.assertEquals;
 
 public class GeneratedClientTests {
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
-    private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/src/test/java";
+    private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/src/test/java/com/thegrayfiles/util";
 
     public void canGenerateRestTemplatePoweredClient() throws IOException {
         File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
@@ -50,7 +52,7 @@ public class GeneratedClientTests {
         generatedSource.deleteOnExit();
 
         // read the source and generate the stubs
-        SpringControllerAnnotationProcessor annotationProcessor = new SpringControllerAnnotationProcessor(generator, generatedSource);
+        SpringControllerClientSourceGenerator annotationProcessor = new SpringControllerClientSourceGenerator(generator, generatedSource);
         annotationProcessor.process();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -106,15 +108,15 @@ public class GeneratedClientTests {
         when(executableMethod.getReturnType()).thenReturn(typeMirror);
         when(typeMirror.toString()).thenReturn("void");
 
-        List<ClientStub> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
+        List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         assertEquals(stubs.get(0).getMethodSignature().getMethodName(), stringMethodName);
         assertEquals(stubs.get(0).getMethodSignature().getReturnType(), Integer.class);
     }
 
     public class TypeElementToClientStubConverter {
 
-        public List<ClientStub> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
-            List<ClientStub> stubs = new ArrayList<ClientStub>();
+        public List<ClientMethod> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
+            List<ClientMethod> stubs = new ArrayList<ClientMethod>();
             Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
             for (Element method : methods) {
                 try {
@@ -124,7 +126,7 @@ public class GeneratedClientTests {
                     Class<?> returnType = Class.forName(elementReturnType.toString());
 
                     MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                    stubs.add(new ClientStub(methodSignature, null));
+                    stubs.add(new ClientMethod(methodSignature, null));
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException("Class not found.");
                 }
@@ -138,7 +140,7 @@ public class GeneratedClientTests {
     @SupportedSourceVersion(SourceVersion.RELEASE_6)
     public class CompileTimeAnnotationProcessor extends AbstractProcessor {
 
-        private List<ClientStub> stubs = new ArrayList<ClientStub>();
+        private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
 
         @Override
         public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
@@ -147,7 +149,7 @@ public class GeneratedClientTests {
             return true;
         }
 
-        public List<ClientStub> getStubs() {
+        public List<ClientMethod> getStubs() {
             return stubs;
         }
     }

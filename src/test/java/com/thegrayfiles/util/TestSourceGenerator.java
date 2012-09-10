@@ -1,14 +1,16 @@
-import com.thegrayfiles.ClientStub;
+package com.thegrayfiles.util;
+
+import com.thegrayfiles.ClientMethod;
 import com.thegrayfiles.PathVariable;
 import com.thegrayfiles.RequestParameter;
-import com.thegrayfiles.SourceGenerator;
+import com.thegrayfiles.MethodImplementationSourceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSourceGenerator implements SourceGenerator {
+public class TestSourceGenerator implements MethodImplementationSourceGenerator {
 
-    public List<String> generate(ClientStub stub) {
+    public List<String> generate(ClientMethod stub) {
         List<String> source = new ArrayList<String>();
         Class<?> returnType = stub.getMethodSignature().getReturnType();
         for (RequestParameter requestParameter : stub.getRequestParameters()) {

@@ -1,6 +1,6 @@
 package com.thegrayfiles.builders;
 
-import com.thegrayfiles.ClientStub;
+import com.thegrayfiles.ClientMethod;
 import com.thegrayfiles.MethodRequestMapping;
 import com.thegrayfiles.MethodSignature;
 import com.thegrayfiles.PathVariable;
@@ -9,7 +9,7 @@ import com.thegrayfiles.RequestParameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientStubBuilder implements Builder<ClientStub> {
+public class ClientStubBuilder implements Builder<ClientMethod> {
 
     private MethodSignature methodSignature;
     private MethodRequestMapping methodRequestMapping;
@@ -40,8 +40,8 @@ public class ClientStubBuilder implements Builder<ClientStub> {
         return this;
     }
 
-    public ClientStub build() {
-        ClientStub stub = new ClientStub(methodSignature, methodRequestMapping);
+    public ClientMethod build() {
+        ClientMethod stub = new ClientMethod(methodSignature, methodRequestMapping);
         for (PathVariable pathVariable : pathVariables) {
             stub.addPathVariable(pathVariable);
         }
