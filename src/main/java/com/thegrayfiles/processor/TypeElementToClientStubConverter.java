@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class TypeElementToClientStubConverter {
 
+    private ClassStringToClassConverter classStringToClassConverter = new ClassStringToClassConverter();
+
     public List<ClientMethod> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
         List<ClientMethod> stubs = new ArrayList<ClientMethod>();
         Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
@@ -22,7 +24,7 @@ public class TypeElementToClientStubConverter {
                 String methodName = method.getSimpleName().toString();
                 ExecutableElement executableMethod = (ExecutableElement) method;
                 Element elementReturnType = processingEnv.getTypeUtils().asElement(executableMethod.getReturnType());
-                Class<?> returnType = Class.forName(elementReturnType.toString());
+                Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
                 stubs.add(new ClientMethod(methodSignature, null));

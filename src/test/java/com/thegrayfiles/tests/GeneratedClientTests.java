@@ -79,31 +79,50 @@ public class GeneratedClientTests {
     }
 
     @Test
-    public void canConvertTypeElementToClientStub() throws ClassNotFoundException {
+    public void canConvertAnnotatedMethodWithNonPrimitiveReturnTypeToClientStub() throws ClassNotFoundException {
+        canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(Integer.class);
+    }
+
+    @Test
+    public void canConvertAnnotatedMethodWithVoidReturnTypeToClientStub() throws ClassNotFoundException {
+        canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(int.class);
+    }
+
+    private void canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(Class<?> returnTypeClass) throws ClassNotFoundException {
         TypeElementToClientStubConverter typeElementAdapter = new TypeElementToClientStubConverter();
 
-        ProcessingEnvironment processingEnvironment = mock(ProcessingEnvironment.class);
-        Types typeUtils = mock(Types.class);
-        ExecutableElement executableMethod = mock(ExecutableElement.class);
-        TypeMirror typeMirror = mock(TypeMirror.class);
-        Name methodName = mock(Name.class);
-        Element returnType = mock(Element.class);
-        RoundEnvironment roundEnvironment = mock(RoundEnvironment.class);
-
         String stringMethodName = "someCrazyMethodName";
-
-        when(processingEnvironment.getTypeUtils()).thenReturn(typeUtils);
-        when(typeUtils.asElement(typeMirror)).thenReturn(returnType);
-        when(returnType.toString()).thenReturn("java.lang.Integer");
-        when(executableMethod.getSimpleName()).thenReturn(methodName);
-        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(Arrays.asList(executableMethod)));
-
-        when(methodName.toString()).thenReturn(stringMethodName);
-        when(executableMethod.getReturnType()).thenReturn(typeMirror);
-        when(typeMirror.toString()).thenReturn("void");
+        TypeMirror typeMirror = mock(TypeMirror.class);
+        Element returnType = mock(Element.class);
+        RoundEnvironment roundEnvironment = mockRoundEnvironment(stringMethodName, returnTypeClass, typeMirror, returnType);
+        ProcessingEnvironment processingEnvironment = mockProcessingEnvironment(typeMirror, returnType);
 
         List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         assertEquals(stubs.get(0).getMethodSignature().getMethodName(), stringMethodName);
-        assertEquals(stubs.get(0).getMethodSignature().getReturnType(), Integer.class);
+        assertEquals(stubs.get(0).getMethodSignature().getReturnType(), returnTypeClass);
+    }
+
+    private RoundEnvironment mockRoundEnvironment(String stringMethodName, Class<?> returnTypeClass, TypeMirror typeMirror, Element returnTypeElement) {
+
+        ExecutableElement executableMethod = mock(ExecutableElement.class);
+        RoundEnvironment roundEnvironment = mock(RoundEnvironment.class);
+
+        Name methodName = mock(Name.class);
+
+        when(returnTypeElement.toString()).thenReturn(returnTypeClass.getCanonicalName());
+        when(methodName.toString()).thenReturn(stringMethodName);
+        when(executableMethod.getReturnType()).thenReturn(typeMirror);
+        when(executableMethod.getSimpleName()).thenReturn(methodName);
+
+        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(Arrays.asList(executableMethod)));
+        return roundEnvironment;
+    }
+
+    private ProcessingEnvironment mockProcessingEnvironment(TypeMirror typeMirror, Element returnType) {
+        ProcessingEnvironment processingEnvironment = mock(ProcessingEnvironment.class);
+        Types typeUtils = mock(Types.class);
+        when(typeUtils.asElement(typeMirror)).thenReturn(returnType);
+        when(processingEnvironment.getTypeUtils()).thenReturn(typeUtils);
+        return processingEnvironment;
     }
 }
