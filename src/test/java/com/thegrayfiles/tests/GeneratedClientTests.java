@@ -85,6 +85,11 @@ public class GeneratedClientTests {
 
     @Test
     public void canConvertAnnotatedMethodWithVoidReturnTypeToClientStub() throws ClassNotFoundException {
+        canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(void.class);
+    }
+
+    @Test
+    public void canConvertAnnotatedMethodWithPrimitiveReturnTypeToClientStub() throws ClassNotFoundException {
         canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(int.class);
     }
 
