@@ -10,7 +10,10 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +36,7 @@ public class TypeElementToClientStubConverter {
                 ClientMethod clientMethod = new ClientMethod(methodSignature, null);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     methodSignature.addParameter(new MethodParameter(parameter.getClass()));
-                    clientMethod.addRequestParameter(new RequestParameter(Integer.class, parameter.getSimpleName().toString()));
+                    clientMethod.addRequestParameter(new RequestParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
                 }
                 stubs.add(clientMethod);
             } catch (ClassNotFoundException e) {
@@ -42,5 +45,12 @@ public class TypeElementToClientStubConverter {
         }
 
         return stubs;
+    }
+
+    private Class<?> getParameterType(VariableElement parameter, ProcessingEnvironment processingEnvironment) throws ClassNotFoundException {
+        TypeMirror mirror = parameter.asType();
+        TypeElement element = (TypeElement) processingEnvironment.getTypeUtils().asElement(mirror);
+        Name name = element.getQualifiedName();
+        return classStringToClassConverter.convert(name.toString());
     }
 }

@@ -3,6 +3,7 @@ package com.thegrayfiles.processor;
 import com.thegrayfiles.client.ClientMethod;
 import com.thegrayfiles.client.RequestParameter;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -11,6 +12,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
@@ -27,10 +29,57 @@ public class TypeElementToClientStubConverterTests {
     private RoundEnvironment roundEnvironment;
     private ProcessingEnvironment processingEnvironment;
     private TypeElementToClientStubConverter typeElementAdapter;
+    private Types typeUtils;
+    private Name methodName;
+    private TypeMirror returnTypeMirror;
+    private Element returnTypeElement;
+    private ExecutableElement executableMethod;
+    private Name requestParameterClassName;
+    private Name requestParameterName;
+    private TypeMirror requestParamTypeMirror;
+    private TypeElement requestParamTypeElement;
+    private VariableElement requestParameter;
+    private RequestParam requestParamAnnotation;
+    private List requestParameters;
 
     @BeforeMethod
     public void setup() {
         typeElementAdapter = new TypeElementToClientStubConverter();
+        typeUtils = mock(Types.class);
+
+        returnTypeMirror = mock(TypeMirror.class);
+        returnTypeElement = mock(Element.class);
+        executableMethod = mock(ExecutableElement.class);
+        methodName = mock(Name.class);
+
+        roundEnvironment = mock(RoundEnvironment.class);
+
+        when(executableMethod.getReturnType()).thenReturn(returnTypeMirror);
+        when(executableMethod.getSimpleName()).thenReturn(methodName);
+
+        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(asList(executableMethod)));
+
+        processingEnvironment = mock(ProcessingEnvironment.class);
+        when(processingEnvironment.getTypeUtils()).thenReturn(typeUtils);
+        when(typeUtils.asElement(returnTypeMirror)).thenReturn(returnTypeElement);
+
+        requestParameter = mock(VariableElement.class);
+        requestParamAnnotation = mock(RequestParam.class);
+        requestParameters = new ArrayList();
+        requestParamTypeMirror = mock(TypeMirror.class);
+        requestParamTypeElement = mock(TypeElement.class);
+
+        requestParameterName = mock(Name.class);
+        requestParameterClassName = mock(Name.class);
+
+        when(requestParameter.getSimpleName()).thenReturn(requestParameterName);
+
+        when(requestParameter.getAnnotation(RequestParam.class)).thenReturn(requestParamAnnotation);
+        when(requestParameter.asType()).thenReturn(requestParamTypeMirror);
+        when(typeUtils.asElement(requestParamTypeMirror)).thenReturn(requestParamTypeElement);
+        when(requestParamTypeElement.getQualifiedName()).thenReturn(requestParameterClassName);
+
+        when(executableMethod.getParameters()).thenReturn(requestParameters);
     }
 
     @Test
@@ -50,20 +99,20 @@ public class TypeElementToClientStubConverterTests {
 
     @Test
     public void canConvertAnnotatedMethodWithRequestParameterToClientStub() throws ClassNotFoundException {
-        List requestParameters = mockRequestParameter("requestParam");
-        expectAnnotatedMethod(requestParameters);
+        mockConverterDependencies("someName", Float.class);
+        mockRequestParameter("requestParam", Object.class);
 
         List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         ClientMethod stub = stubs.get(0);
 
         RequestParameter requestParameter = stub.getRequestParameters().get(0);
         assertEquals(requestParameter.getName(), "requestParam");
-        assertEquals(requestParameter.getType(), Integer.class);
+        assertEquals(requestParameter.getType(), Object.class);
     }
 
     private void canConvertAnnotatedMethodWithSpecifiedReturnTypeToClientStub(Class<?> returnTypeClass) throws ClassNotFoundException {
         String stringMethodName = "someCrazyMethodName";
-        expectAnnotatedMethod(returnTypeClass);
+        mockConverterDependencies(stringMethodName, returnTypeClass);
 
         List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         ClientMethod stub = stubs.get(0);
@@ -71,56 +120,14 @@ public class TypeElementToClientStubConverterTests {
         assertEquals(stub.getMethodSignature().getReturnType(), returnTypeClass);
     }
 
-    private void expectAnnotatedMethod(List requestParameters) throws ClassNotFoundException {
-        expectAnnotatedMethod(void.class, requestParameters);
-    }
-
-    private void expectAnnotatedMethod(Class<?> returnType, List requestParameters) {
-        String stringMethodName = "someCrazyMethodName";
-        TypeMirror typeMirror = mock(TypeMirror.class);
-        Element returnTypeElement = mock(Element.class);
-        roundEnvironment = mockRoundEnvironment(stringMethodName, returnType, requestParameters, typeMirror, returnTypeElement);
-        processingEnvironment = mockProcessingEnvironment(typeMirror, returnTypeElement);
-    }
-
-    private void expectAnnotatedMethod(Class<?> returnType) {
-        expectAnnotatedMethod(returnType, new ArrayList());
-    }
-
-    private List mockRequestParameter(String parameterName) {
-        VariableElement requestParameter = mock(VariableElement.class);
-        List requestParameters = new ArrayList();
-        requestParameters.add(requestParameter);
-
-        Name requestParameterName = mock(Name.class);
-        when(requestParameter.getSimpleName()).thenReturn(requestParameterName);
-        when(requestParameterName.toString()).thenReturn(parameterName);
-        return requestParameters;
-    }
-
-    private RoundEnvironment mockRoundEnvironment(String stringMethodName, Class<?> returnTypeClass, List requestParameters, TypeMirror typeMirror, Element returnTypeElement) {
-
-        ExecutableElement executableMethod = mock(ExecutableElement.class);
-        RoundEnvironment roundEnvironment = mock(RoundEnvironment.class);
-
-
-        Name methodName = mock(Name.class);
-
-
+    private void mockConverterDependencies(String stringMethodName, Class<?> returnTypeClass) {
         when(returnTypeElement.toString()).thenReturn(returnTypeClass.getCanonicalName());
         when(methodName.toString()).thenReturn(stringMethodName);
-        when(executableMethod.getReturnType()).thenReturn(typeMirror);
-        when(executableMethod.getSimpleName()).thenReturn(methodName);
-        when(executableMethod.getParameters()).thenReturn(requestParameters);
-        when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(asList(executableMethod)));
-        return roundEnvironment;
     }
 
-    private ProcessingEnvironment mockProcessingEnvironment(TypeMirror typeMirror, Element returnType) {
-        ProcessingEnvironment processingEnvironment = mock(ProcessingEnvironment.class);
-        Types typeUtils = mock(Types.class);
-        when(typeUtils.asElement(typeMirror)).thenReturn(returnType);
-        when(processingEnvironment.getTypeUtils()).thenReturn(typeUtils);
-        return processingEnvironment;
+    private void mockRequestParameter(String parameterName, Class<?> type) {
+        when(requestParameterName.toString()).thenReturn(parameterName);
+        when(requestParameterClassName.toString()).thenReturn(type.getCanonicalName());
+        requestParameters.add(requestParameter);
     }
 }
