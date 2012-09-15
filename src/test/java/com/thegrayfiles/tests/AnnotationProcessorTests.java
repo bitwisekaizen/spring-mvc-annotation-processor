@@ -4,7 +4,7 @@ import com.thegrayfiles.client.ClientMethod;
 import com.thegrayfiles.client.PathVariable;
 import com.thegrayfiles.client.RequestParameter;
 import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
-import com.thegrayfiles.generator.SpringControllerClientSourceGenerator;
+import com.thegrayfiles.generator.JavaClientSourceGenerator;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
@@ -79,7 +79,7 @@ public class AnnotationProcessorTests {
 
     private void canProcessRequestMapping(ClientMethod stub) throws IOException {
         MethodImplementationSourceGenerator clientGenerator = new TestSourceGenerator();
-        SpringControllerClientSourceGenerator processor = new SpringControllerClientSourceGenerator(clientGenerator, generatedSource);
+        JavaClientSourceGenerator processor = new JavaClientSourceGenerator(clientGenerator, generatedSource);
 
         processor.addStub(stub);
 

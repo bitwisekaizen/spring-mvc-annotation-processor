@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SpringControllerClientSourceGenerator {
+public class JavaClientSourceGenerator {
 
     private File file;
     private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
     private MethodImplementationSourceGenerator sourceGenerator;
 
-    public SpringControllerClientSourceGenerator(MethodImplementationSourceGenerator sourceGenerator, File file) {
+    public JavaClientSourceGenerator(MethodImplementationSourceGenerator sourceGenerator, File file) {
         this.sourceGenerator = sourceGenerator;
         this.file = file;
     }
