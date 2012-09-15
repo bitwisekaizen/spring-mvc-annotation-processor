@@ -1,6 +1,6 @@
 package com.thegrayfiles.processor;
 
-import com.thegrayfiles.client.ClientMethod;
+import com.thegrayfiles.server.ServerEndpoint;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -16,7 +16,7 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class SpringControllerAnnotationProcessor extends AbstractProcessor {
 
-    private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
+    private List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
 
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
@@ -25,7 +25,7 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
-    public List<ClientMethod> getStubs() {
+    public List<ServerEndpoint> getStubs() {
         return stubs;
     }
 }

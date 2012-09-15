@@ -1,8 +1,8 @@
 package com.thegrayfiles.tests;
 
-import com.thegrayfiles.client.ClientMethod;
-import com.thegrayfiles.client.PathVariable;
-import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerPathVariable;
+import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
 import com.thegrayfiles.generator.JavaClientSourceGenerator;
 import com.thegrayfiles.method.MethodParameter;
@@ -46,38 +46,38 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessRequestMappingWithVoidReturnType() throws IOException {
-        ClientMethod stub = aStub().thatReturns(void.class).build();
+        ServerEndpoint stub = aStub().thatReturns(void.class).build();
         canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithNonPrimitiveReturnType() throws IOException {
-        ClientMethod stub = aStub().thatReturns(Integer.class).build();
+        ServerEndpoint stub = aStub().thatReturns(Integer.class).build();
         canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithPrimitiveReturnType() throws IOException {
-        ClientMethod stub = aStub().thatReturns(int.class).build();
+        ServerEndpoint stub = aStub().thatReturns(int.class).build();
         canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        ClientMethod stub = aStub()
-                .withRequestParam(new RequestParameter(String.class, "param"))
-                .withRequestParam(new RequestParameter(Integer.class, "anotherparam"))
-                .withRequestParam(new RequestParameter(Integer.class, "onemoreofthesametype")).build();
+        ServerEndpoint stub = aStub()
+                .withRequestParam(new ServerRequestParameter(String.class, "param"))
+                .withRequestParam(new ServerRequestParameter(Integer.class, "anotherparam"))
+                .withRequestParam(new ServerRequestParameter(Integer.class, "onemoreofthesametype")).build();
         canProcessRequestMapping(stub);
     }
 
     @Test
     public void canProcessRequestMappingWithSinglePathVariable() throws IOException {
-        ClientMethod stub = aStub().withPathVariable(new PathVariable(String.class, "somekindofpathvariable")).build();
+        ServerEndpoint stub = aStub().withPathVariable(new ServerPathVariable(String.class, "somekindofpathvariable")).build();
         canProcessRequestMapping(stub);
     }
 
-    private void canProcessRequestMapping(ClientMethod stub) throws IOException {
+    private void canProcessRequestMapping(ServerEndpoint stub) throws IOException {
         MethodImplementationSourceGenerator clientGenerator = new TestSourceGenerator();
         JavaClientSourceGenerator processor = new JavaClientSourceGenerator(clientGenerator, generatedSource);
 
@@ -127,12 +127,12 @@ public class AnnotationProcessorTests {
         }
     }
 
-    private Map<Class<?>, Integer> getStubTypeCount(ClientMethod stub) {
+    private Map<Class<?>, Integer> getStubTypeCount(ServerEndpoint stub) {
         Map<Class<?>, Integer> typeCount = new HashMap<Class<?>, Integer>();
-        for (RequestParameter parameter : stub.getRequestParameters()) {
+        for (ServerRequestParameter parameter : stub.getRequestParameters()) {
             incrementTypeCount(typeCount, parameter.getType());
         }
-        for (PathVariable pathVariable : stub.getPathVariables()) {
+        for (ServerPathVariable pathVariable : stub.getPathVariables()) {
             incrementTypeCount(typeCount, pathVariable.getType());
         }
         return typeCount;

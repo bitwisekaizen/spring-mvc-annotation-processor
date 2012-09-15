@@ -1,7 +1,7 @@
 package com.thegrayfiles.processor;
 
-import com.thegrayfiles.client.ClientMethod;
-import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +22,8 @@ public class TypeElementToClientStubConverter {
 
     private ClassStringToClassConverter classStringToClassConverter = new ClassStringToClassConverter();
 
-    public List<ClientMethod> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
-        List<ClientMethod> stubs = new ArrayList<ClientMethod>();
+    public List<ServerEndpoint> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
+        List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
         Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
         for (Element method : methods) {
             try {
@@ -33,10 +33,10 @@ public class TypeElementToClientStubConverter {
                 Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                ClientMethod clientMethod = new ClientMethod(methodSignature, null);
+                ServerEndpoint clientMethod = new ServerEndpoint(methodSignature, null);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     methodSignature.addParameter(new MethodParameter(parameter.getClass()));
-                    clientMethod.addRequestParameter(new RequestParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
+                    clientMethod.addRequestParameter(new ServerRequestParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
                 }
                 stubs.add(clientMethod);
             } catch (ClassNotFoundException e) {

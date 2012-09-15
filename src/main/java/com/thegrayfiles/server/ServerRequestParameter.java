@@ -1,10 +1,10 @@
-package com.thegrayfiles.client;
+package com.thegrayfiles.server;
 
-public class RequestParameter {
+public class ServerRequestParameter {
     private Class<?> type;
     private String name;
 
-    public RequestParameter(Class<?> type, String name) {
+    public ServerRequestParameter(Class<?> type, String name) {
         this.type = type;
         this.name = name;
     }

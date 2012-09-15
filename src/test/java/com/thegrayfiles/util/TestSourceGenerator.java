@@ -1,8 +1,8 @@
 package com.thegrayfiles.util;
 
-import com.thegrayfiles.client.ClientMethod;
-import com.thegrayfiles.client.PathVariable;
-import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerPathVariable;
+import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
 
 import java.util.ArrayList;
@@ -10,13 +10,13 @@ import java.util.List;
 
 public class TestSourceGenerator implements MethodImplementationSourceGenerator {
 
-    public List<String> generate(ClientMethod stub) {
+    public List<String> generate(ServerEndpoint stub) {
         List<String> source = new ArrayList<String>();
         Class<?> returnType = stub.getMethodSignature().getReturnType();
-        for (RequestParameter requestParameter : stub.getRequestParameters()) {
+        for (ServerRequestParameter requestParameter : stub.getRequestParameters()) {
             source.add(requestParameter.getName() + ".toString();");
         }
-        for (PathVariable pathVariable : stub.getPathVariables()) {
+        for (ServerPathVariable pathVariable : stub.getPathVariables()) {
             source.add(pathVariable.getName() + ".toString();");
         }
         if (returnType.equals(void.class)) {

@@ -1,10 +1,10 @@
-package com.thegrayfiles.client;
+package com.thegrayfiles.server;
 
-public class PathVariable {
+public class ServerPathVariable {
     private String name;
     private Class<?> type;
 
-    public PathVariable(Class<String> type, String name) {
+    public ServerPathVariable(Class<String> type, String name) {
         this.name = name;
         this.type = type;
     }

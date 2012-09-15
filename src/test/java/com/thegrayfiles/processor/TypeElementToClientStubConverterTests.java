@@ -1,7 +1,7 @@
 package com.thegrayfiles.processor;
 
-import com.thegrayfiles.client.ClientMethod;
-import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerRequestParameter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.testng.annotations.BeforeMethod;
@@ -102,10 +102,10 @@ public class TypeElementToClientStubConverterTests {
         mockConverterDependencies("someName", Float.class);
         mockRequestParameter("requestParam", Object.class);
 
-        List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
-        ClientMethod stub = stubs.get(0);
+        List<ServerEndpoint> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
+        ServerEndpoint stub = stubs.get(0);
 
-        RequestParameter requestParameter = stub.getRequestParameters().get(0);
+        ServerRequestParameter requestParameter = stub.getRequestParameters().get(0);
         assertEquals(requestParameter.getName(), "requestParam");
         assertEquals(requestParameter.getType(), Object.class);
     }
@@ -114,8 +114,8 @@ public class TypeElementToClientStubConverterTests {
         String stringMethodName = "someCrazyMethodName";
         mockConverterDependencies(stringMethodName, returnTypeClass);
 
-        List<ClientMethod> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
-        ClientMethod stub = stubs.get(0);
+        List<ServerEndpoint> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
+        ServerEndpoint stub = stubs.get(0);
         assertEquals(stub.getMethodSignature().getMethodName(), stringMethodName);
         assertEquals(stub.getMethodSignature().getReturnType(), returnTypeClass);
     }

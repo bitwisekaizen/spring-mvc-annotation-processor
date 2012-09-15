@@ -1,8 +1,8 @@
 package com.thegrayfiles.generator;
 
-import com.thegrayfiles.client.ClientMethod;
-import com.thegrayfiles.client.PathVariable;
-import com.thegrayfiles.client.RequestParameter;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerPathVariable;
+import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.method.MethodSignature;
 import org.apache.commons.io.FileUtils;
 
@@ -15,11 +15,11 @@ import java.util.List;
 public class JavaClientSourceGenerator {
 
     private File file;
-    private List<ClientMethod> stubs = new ArrayList<ClientMethod>();
-    private MethodImplementationSourceGenerator sourceGenerator;
+    private List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
+    private MethodImplementationSourceGenerator methodGenerator;
 
-    public JavaClientSourceGenerator(MethodImplementationSourceGenerator sourceGenerator, File file) {
-        this.sourceGenerator = sourceGenerator;
+    public JavaClientSourceGenerator(MethodImplementationSourceGenerator methodGenerator, File file) {
+        this.methodGenerator = methodGenerator;
         this.file = file;
     }
 
@@ -28,15 +28,15 @@ public class JavaClientSourceGenerator {
             LinkedList<String> fileContents = new LinkedList<String>();
             fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
 
-            for (ClientMethod stub : stubs) {
+            for (ServerEndpoint stub : stubs) {
                 // generate signature and method contents
                 MethodSignature signature = stub.getMethodSignature();
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
                 fileContents.add("(");
 
                 // add request parameters
-                List<RequestParameter> requestParameters = stub.getRequestParameters();
-                for (RequestParameter requestParameter : requestParameters) {
+                List<ServerRequestParameter> requestParameters = stub.getRequestParameters();
+                for (ServerRequestParameter requestParameter : requestParameters) {
                     fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
                     fileContents.add(", ");
                 }
@@ -45,12 +45,12 @@ public class JavaClientSourceGenerator {
                 }
 
                 // add path variables
-                List<PathVariable> pathVariables = stub.getPathVariables();
-                for (PathVariable pathVariable : pathVariables) {
+                List<ServerPathVariable> pathVariables = stub.getPathVariables();
+                for (ServerPathVariable pathVariable : pathVariables) {
                      fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
                 }
                 fileContents.add(") {");
-                fileContents.addAll(sourceGenerator.generate(stub));
+                fileContents.addAll(methodGenerator.generate(stub));
                 fileContents.add("}");
             }
 
@@ -62,7 +62,7 @@ public class JavaClientSourceGenerator {
         }
     }
 
-    public void addStub(ClientMethod stub) {
+    public void addStub(ServerEndpoint stub) {
         stubs.add(stub);
     }
 }
