@@ -1,12 +1,10 @@
-package com.thegrayfiles.tests;
+package com.thegrayfiles.generator;
 
+import com.thegrayfiles.method.MethodParameter;
+import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
 import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
-import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
-import com.thegrayfiles.generator.JavaClientSourceGenerator;
-import com.thegrayfiles.method.MethodParameter;
-import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
 import com.thegrayfiles.util.TestSourceGenerator;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +23,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @Test
-public class AnnotationProcessorTests {
+public class JavaClientSourceGeneratorTests {
 
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
     private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/target/test-classes";
@@ -64,27 +62,27 @@ public class AnnotationProcessorTests {
 
     @Test
     public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        ServerEndpoint stub = aStub()
+        ServerEndpoint endpoint = aStub()
                 .withRequestParam(new ServerRequestParameter(String.class, "param"))
                 .withRequestParam(new ServerRequestParameter(Integer.class, "anotherparam"))
                 .withRequestParam(new ServerRequestParameter(Integer.class, "onemoreofthesametype")).build();
-        canProcessRequestMapping(stub);
+        canProcessRequestMapping(endpoint);
     }
 
     @Test
     public void canProcessRequestMappingWithSinglePathVariable() throws IOException {
-        ServerEndpoint stub = aStub().withPathVariable(new ServerPathVariable(String.class, "somekindofpathvariable")).build();
-        canProcessRequestMapping(stub);
+        ServerEndpoint endpoint = aStub().withPathVariable(new ServerPathVariable(String.class, "somekindofpathvariable")).build();
+        canProcessRequestMapping(endpoint);
     }
 
     private void canProcessRequestMapping(ServerEndpoint stub) throws IOException {
         MethodImplementationSourceGenerator clientGenerator = new TestSourceGenerator();
-        JavaClientSourceGenerator processor = new JavaClientSourceGenerator(clientGenerator, generatedSource);
+        JavaClientSourceGenerator generator = new JavaClientSourceGenerator(clientGenerator, generatedSource);
 
-        processor.addStub(stub);
+        generator.addEndpoint(stub);
 
         // this should produce the client stub...
-        processor.process();
+        generator.process();
 
         // file size should have increased
         assertTrue(FileUtils.sizeOf(generatedSource) != 0, "Client file size did not increase.");

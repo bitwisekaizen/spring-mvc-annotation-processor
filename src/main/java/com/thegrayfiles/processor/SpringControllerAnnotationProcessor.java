@@ -20,7 +20,7 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-        TypeElementToClientStubConverter converter = new TypeElementToClientStubConverter();
+        AnnotationEnvironmentToServerEndpointConverter converter = new AnnotationEnvironmentToServerEndpointConverter();
         stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
         return true;
     }

@@ -15,7 +15,7 @@ import java.util.List;
 public class JavaClientSourceGenerator {
 
     private File file;
-    private List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
+    private List<ServerEndpoint> endpoints = new ArrayList<ServerEndpoint>();
     private MethodImplementationSourceGenerator methodGenerator;
 
     public JavaClientSourceGenerator(MethodImplementationSourceGenerator methodGenerator, File file) {
@@ -28,14 +28,14 @@ public class JavaClientSourceGenerator {
             LinkedList<String> fileContents = new LinkedList<String>();
             fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
 
-            for (ServerEndpoint stub : stubs) {
+            for (ServerEndpoint endpoint: endpoints) {
                 // generate signature and method contents
-                MethodSignature signature = stub.getMethodSignature();
+                MethodSignature signature = endpoint.getMethodSignature();
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
                 fileContents.add("(");
 
                 // add request parameters
-                List<ServerRequestParameter> requestParameters = stub.getRequestParameters();
+                List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
                 for (ServerRequestParameter requestParameter : requestParameters) {
                     fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
                     fileContents.add(", ");
@@ -45,12 +45,12 @@ public class JavaClientSourceGenerator {
                 }
 
                 // add path variables
-                List<ServerPathVariable> pathVariables = stub.getPathVariables();
+                List<ServerPathVariable> pathVariables = endpoint.getPathVariables();
                 for (ServerPathVariable pathVariable : pathVariables) {
                      fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
                 }
                 fileContents.add(") {");
-                fileContents.addAll(methodGenerator.generate(stub));
+                fileContents.addAll(methodGenerator.generate(endpoint));
                 fileContents.add("}");
             }
 
@@ -62,7 +62,7 @@ public class JavaClientSourceGenerator {
         }
     }
 
-    public void addStub(ServerEndpoint stub) {
-        stubs.add(stub);
+    public void addEndpoint(ServerEndpoint endpoint) {
+        endpoints.add(endpoint);
     }
 }

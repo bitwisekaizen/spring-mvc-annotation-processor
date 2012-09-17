@@ -8,13 +8,11 @@ import java.util.List;
 public class ServerEndpoint {
 
     private MethodSignature signature;
-    private ServerRequestMapping requestMapping;
     private List<ServerRequestParameter> requestParameters = new ArrayList<ServerRequestParameter>();
     private List<ServerPathVariable> pathVariables = new ArrayList<ServerPathVariable>();
 
-    public ServerEndpoint(MethodSignature signature, ServerRequestMapping requestMapping) {
+    public ServerEndpoint(MethodSignature signature) {
         this.signature = signature;
-        this.requestMapping = requestMapping;
     }
 
     public MethodSignature getMethodSignature() {

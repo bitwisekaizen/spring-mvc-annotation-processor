@@ -28,7 +28,7 @@ import static org.testng.Assert.assertEquals;
 public class TypeElementToClientStubConverterTests {
     private RoundEnvironment roundEnvironment;
     private ProcessingEnvironment processingEnvironment;
-    private TypeElementToClientStubConverter typeElementAdapter;
+    private AnnotationEnvironmentToServerEndpointConverter typeElementAdapter;
     private Types typeUtils;
     private Name methodName;
     private TypeMirror returnTypeMirror;
@@ -44,7 +44,7 @@ public class TypeElementToClientStubConverterTests {
 
     @BeforeMethod
     public void setup() {
-        typeElementAdapter = new TypeElementToClientStubConverter();
+        typeElementAdapter = new AnnotationEnvironmentToServerEndpointConverter();
         typeUtils = mock(Types.class);
 
         returnTypeMirror = mock(TypeMirror.class);

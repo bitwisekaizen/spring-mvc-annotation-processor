@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TypeElementToClientStubConverter {
+public class AnnotationEnvironmentToServerEndpointConverter {
 
     private ClassStringToClassConverter classStringToClassConverter = new ClassStringToClassConverter();
 
     public List<ServerEndpoint> convert(ProcessingEnvironment processingEnv, RoundEnvironment roundEnvironment) {
-        List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
+        List<ServerEndpoint> endpoints = new ArrayList<ServerEndpoint>();
         Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
         for (Element method : methods) {
             try {
@@ -33,18 +33,19 @@ public class TypeElementToClientStubConverter {
                 Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                ServerEndpoint clientMethod = new ServerEndpoint(methodSignature, null);
+                ServerEndpoint endpoint = new ServerEndpoint(methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     methodSignature.addParameter(new MethodParameter(parameter.getClass()));
-                    clientMethod.addRequestParameter(new ServerRequestParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
+                    endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter,
+                            processingEnv), parameter.getSimpleName().toString()));
                 }
-                stubs.add(clientMethod);
+                endpoints.add(endpoint);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Class not found.");
             }
         }
 
-        return stubs;
+        return endpoints;
     }
 
     private Class<?> getParameterType(VariableElement parameter, ProcessingEnvironment processingEnvironment) throws ClassNotFoundException {
