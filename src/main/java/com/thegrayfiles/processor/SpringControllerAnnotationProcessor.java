@@ -1,6 +1,7 @@
 package com.thegrayfiles.processor;
 
 import com.thegrayfiles.server.ServerEndpoint;
+import org.apache.commons.io.FileUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -12,6 +13,7 @@ import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -31,10 +33,13 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
             File file = new File(clientOutputFilename);
             try {
                 file.createNewFile();
+                FileUtils.writeLines(file, Arrays.asList("public class " + file.getName().replaceAll("(.*?)\\.java",
+                        "$1") + "{}"));
             } catch (IOException e) {
                 // blegh
             }
         }
+
         AnnotationEnvironmentToServerEndpointConverter converter = new AnnotationEnvironmentToServerEndpointConverter();
         stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
         return true;

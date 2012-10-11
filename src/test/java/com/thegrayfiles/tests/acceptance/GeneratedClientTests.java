@@ -63,8 +63,7 @@ public class GeneratedClientTests {
     }
 
     private void compile(File file) throws CompilationFailedException {
-        SpringControllerAnnotationProcessor noProcessor = null;
-        compile(file, noProcessor);
+        compile(file, new SpringControllerAnnotationProcessor());
     }
 
     private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
