@@ -11,13 +11,7 @@ public class TestController {
     public static final String TEST_REQUEST_MAPPING = "/test";
 
     @RequestMapping(value=TEST_REQUEST_MAPPING)
-    public @ResponseBody
-    TestEntity simple() {
-        liquibase.integration.spring.SpringLiquibase li;
-        org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean dooo;
-        org.springframework.jdbc.datasource.DriverManagerDataSource moooo;
-        org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter moo;
+    public @ResponseBody TestEntity simple() {
         return new TestEntity("test");
-
     }
 }
