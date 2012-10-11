@@ -1,4 +1,4 @@
-package com.thegrayfiles.tests;
+package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.exception.CompilationFailedException;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
