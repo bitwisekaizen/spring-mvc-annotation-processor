@@ -6,21 +6,13 @@
     <bean id="jaxbMarshaller" class="com.dharrigan.AnnotationJaxb2Marshaller">
         <property name="classesToBeBound">
             <array>
-                <value>harvard.marshallable.Images</value>
+                <value>com.thegrayfiles.marshallable.TestEntity</value>
             </array>
         </property>
         <property name="packagesToScan">
             <array>
-                <value>harvard.marshallable</value>
+                <value>com.thegrayfiles.marshallable</value>
             </array>
-        </property>
-    </bean>
-
-    <bean id="byteArrayHttpMessageConverter" class="org.springframework.http.converter.ByteArrayHttpMessageConverter">
-        <property name="supportedMediaTypes">
-            <list>
-                <value>image/jpeg</value>
-            </list>
         </property>
     </bean>
 </beans>
