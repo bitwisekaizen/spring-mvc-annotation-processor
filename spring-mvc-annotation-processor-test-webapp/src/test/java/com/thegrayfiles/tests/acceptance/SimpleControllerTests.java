@@ -12,6 +12,8 @@ public class SimpleControllerTests {
 
     @Test
     public void canGetResourceFromController() {
+
+
         TestEntity response = restTemplate.getForEntity("http://localhost:8080/test-webapp/ws/test", TestEntity.class).getBody();
         assertEquals(response.getName(), "test", "Response entity name is incorrect.");
     }

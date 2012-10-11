@@ -10,7 +10,7 @@
 
     <modules>
       <module>spring-mvc-annotation-processor</module>
-      <module>spring-mvc-annotation-processor-test</module>
+      <module>spring-mvc-annotation-processor-test-webapp</module>
     </modules>
 
     <dependencyManagement>
