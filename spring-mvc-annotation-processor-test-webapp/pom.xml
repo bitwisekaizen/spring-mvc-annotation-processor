@@ -62,6 +62,12 @@
             <artifactId>spring-oxm</artifactId>
             <version>3.1.1.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.thegrayfiles</groupId>
+            <artifactId>spring-mvc-annotation-processor</artifactId>
+            <version>1.0.0-BUILD-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -1,6 +1,7 @@
 package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.marshallable.TestEntity;
+import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
 import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.Test;
 
@@ -12,6 +13,7 @@ public class SimpleControllerTests {
 
     @Test
     public void canGetResourceFromController() {
+        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
 
 
         TestEntity response = restTemplate.getForEntity("http://localhost:8080/test-webapp/ws/test", TestEntity.class).getBody();
