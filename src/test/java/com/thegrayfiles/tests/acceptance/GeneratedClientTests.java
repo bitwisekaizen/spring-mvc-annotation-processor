@@ -10,9 +10,14 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class GeneratedClientTests {
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
@@ -28,21 +33,50 @@ public class GeneratedClientTests {
         assertEquals(processor.getServerEndpoints().size(), 1, "Expected exactly one request mapping.");
     }
 
+    @Test
+    public void processorProducesClientSourceFile() throws CompilationFailedException {
+        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
+        File annotatedSourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
+
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("outputFile", "output.java");
+        compile(annotatedSourceFile, processor, options);
+
+        File clientSourceFile = new File("output.java");
+        assertTrue(clientSourceFile.exists(), "Client source file does not exist.");
+        clientSourceFile.delete();
+    }
+
+    private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
+        compile(file, processor, new HashMap<String, String>());
+    }
+
     /**
      * Compile a file and process it using the annotation processor specified.
      * @param file the file to compile
      * @param processor the annotation processor to use
+     * @param options the options to pass to the annotation processor
      * @throws CompilationFailedException if compilation of the specified file fails
      */
-    private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
+    private void compile(File file, SpringControllerAnnotationProcessor processor, Map<String, String> options) throws CompilationFailedException {
+        List<String> processorOptions = buildAnnotationProcessorOptionsList(options);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
         Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(file));
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, processorOptions, null, javaFileObjects);
+
         task.setProcessors(asList(processor));
 
         if (!task.call()) {
             throw new CompilationFailedException(file);
         }
+    }
+
+    private List<String> buildAnnotationProcessorOptionsList(Map<String, String> options) {
+        List<String> optionsString = new ArrayList<String>();
+        for (String key : options.keySet()) {
+            optionsString.add("-A" + key + "=" + options.get(key));
+        }
+        return optionsString;
     }
 }
