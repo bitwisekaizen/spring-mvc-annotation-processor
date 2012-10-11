@@ -50,7 +50,8 @@ public class GeneratedClientTests {
         File annotatedSourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
 
         // create file to get the appropriate temp file name and then delete it so that the processor can recreate it
-        File clientSourceFile = File.createTempFile("TestClient", ".java");
+        File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+        File clientSourceFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         clientSourceFile.delete();
 
         Map<String, String> options = new HashMap<String, String>();

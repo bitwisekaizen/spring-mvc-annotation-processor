@@ -26,11 +26,14 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-        File file = new File(this.processingEnv.getOptions().get(OPTION_CLIENT_OUTPUT_FILE));
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            // blegh
+        String clientOutputFilename = this.processingEnv.getOptions().get(OPTION_CLIENT_OUTPUT_FILE);
+        if (clientOutputFilename != null) {
+            File file = new File(clientOutputFilename);
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // blegh
+            }
         }
         AnnotationEnvironmentToServerEndpointConverter converter = new AnnotationEnvironmentToServerEndpointConverter();
         stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
