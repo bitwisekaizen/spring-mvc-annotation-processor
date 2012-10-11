@@ -39,7 +39,7 @@ public class GeneratedClientTests {
         File annotatedSourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
 
         Map<String, String> options = new HashMap<String, String>();
-        options.put("outputFile", "output.java");
+        options.put(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, "output.java");
         compile(annotatedSourceFile, processor, options);
 
         File clientSourceFile = new File("output.java");
