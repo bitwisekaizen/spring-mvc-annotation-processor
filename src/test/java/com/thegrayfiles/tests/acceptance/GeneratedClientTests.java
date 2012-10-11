@@ -34,17 +34,36 @@ public class GeneratedClientTests {
     }
 
     @Test
-    public void processorProducesClientSourceFile() throws CompilationFailedException {
+    public void processorProducesClientSourceFile() throws CompilationFailedException, IOException {
+        File clientSourceFile = processTestController();
+        assertTrue(clientSourceFile.exists(), "Client source file does not exist.");
+    }
+
+    @Test
+    public void processorProducesCompilableClientSourceFile() throws CompilationFailedException, IOException {
+        File clientSourceFile = processTestController();
+        compile(clientSourceFile);
+    }
+
+    private File processTestController() throws CompilationFailedException, IOException {
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
         File annotatedSourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
 
-        Map<String, String> options = new HashMap<String, String>();
-        options.put(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, "output.java");
-        compile(annotatedSourceFile, processor, options);
-
-        File clientSourceFile = new File("output.java");
-        assertTrue(clientSourceFile.exists(), "Client source file does not exist.");
+        // create file to get the appropriate temp file name and then delete it so that the processor can recreate it
+        File clientSourceFile = File.createTempFile("TestClient", ".java");
         clientSourceFile.delete();
+
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, clientSourceFile.getAbsolutePath());
+        compile(annotatedSourceFile, processor, options);
+        clientSourceFile.deleteOnExit();
+
+        return clientSourceFile;
+    }
+
+    private void compile(File file) throws CompilationFailedException {
+        SpringControllerAnnotationProcessor noProcessor = null;
+        compile(file, noProcessor);
     }
 
     private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
