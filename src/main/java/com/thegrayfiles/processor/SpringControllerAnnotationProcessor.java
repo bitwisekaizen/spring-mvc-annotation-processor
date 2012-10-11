@@ -25,7 +25,7 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
-    public List<ServerEndpoint> getStubs() {
+    public List<ServerEndpoint> getServerEndpoints() {
         return stubs;
     }
 }

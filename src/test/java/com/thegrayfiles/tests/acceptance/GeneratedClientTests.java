@@ -25,7 +25,7 @@ public class GeneratedClientTests {
 
         compile(sourceFile, processor);
 
-        assertEquals(processor.getStubs().size(), 1, "Expected exactly one request mapping.");
+        assertEquals(processor.getServerEndpoints().size(), 1, "Expected exactly one request mapping.");
     }
 
     /**
