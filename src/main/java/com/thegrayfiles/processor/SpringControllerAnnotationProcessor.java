@@ -1,7 +1,8 @@
 package com.thegrayfiles.processor;
 
+import com.thegrayfiles.generator.JavaClientSourceGenerator;
+import com.thegrayfiles.generator.SimpleMethodImplementationSourceGenerator;
 import com.thegrayfiles.server.ServerEndpoint;
-import org.apache.commons.io.FileUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -13,7 +14,6 @@ import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +22,8 @@ import java.util.Set;
 @SupportedOptions(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE)
 public class SpringControllerAnnotationProcessor extends AbstractProcessor {
 
-    private List<ServerEndpoint> stubs = new ArrayList<ServerEndpoint>();
+    private List<ServerEndpoint> serverEndpoints = new ArrayList<ServerEndpoint>();
+    private File outputFile;
 
     public static final String OPTION_CLIENT_OUTPUT_FILE = "clientOutputFile";
 
@@ -30,22 +31,29 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
         String clientOutputFilename = this.processingEnv.getOptions().get(OPTION_CLIENT_OUTPUT_FILE);
         if (clientOutputFilename != null) {
-            File file = new File(clientOutputFilename);
-            try {
-                file.createNewFile();
-                FileUtils.writeLines(file, Arrays.asList("public class " + file.getName().replaceAll("(.*?)\\.java",
-                        "$1") + "{}"));
-            } catch (IOException e) {
-                // blegh
+            if (outputFile == null) {
+                outputFile = new File(clientOutputFilename);
+                try {
+                    outputFile.createNewFile();
+                } catch (IOException e) {
+                    // can't create...do something here
+                }
             }
+        } else {
+            return false;
+        }
+
+        if (roundEnvironment.processingOver()) {
+            SimpleMethodImplementationSourceGenerator methodImplementationSourceGenerator = new SimpleMethodImplementationSourceGenerator();
+            JavaClientSourceGenerator javaClientSourceGenerator = new JavaClientSourceGenerator(methodImplementationSourceGenerator, outputFile);
+            for (ServerEndpoint endpoint : serverEndpoints) {
+                javaClientSourceGenerator.addEndpoint(endpoint);
+            }
+            javaClientSourceGenerator.process();
         }
 
         AnnotationEnvironmentToServerEndpointConverter converter = new AnnotationEnvironmentToServerEndpointConverter();
-        stubs.addAll(converter.convert(this.processingEnv, roundEnvironment));
+        serverEndpoints.addAll(converter.convert(this.processingEnv, roundEnvironment));
         return true;
-    }
-
-    public List<ServerEndpoint> getServerEndpoints() {
-        return stubs;
     }
 }

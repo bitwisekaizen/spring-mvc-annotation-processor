@@ -1,14 +1,13 @@
-package com.thegrayfiles.util;
+package com.thegrayfiles.generator;
 
 import com.thegrayfiles.server.ServerEndpoint;
 import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
-import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSourceGenerator implements MethodImplementationSourceGenerator {
+public class SimpleMethodImplementationSourceGenerator implements MethodImplementationSourceGenerator {
 
     public List<String> generate(ServerEndpoint stub) {
         List<String> source = new ArrayList<String>();

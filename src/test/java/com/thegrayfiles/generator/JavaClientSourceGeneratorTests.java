@@ -7,7 +7,6 @@ import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
 import com.thegrayfiles.util.TestDirectories;
-import com.thegrayfiles.util.TestSourceGenerator;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -76,7 +75,7 @@ public class JavaClientSourceGeneratorTests {
     }
 
     private void canProcessRequestMapping(ServerEndpoint stub) throws IOException {
-        MethodImplementationSourceGenerator clientGenerator = new TestSourceGenerator();
+        MethodImplementationSourceGenerator clientGenerator = new SimpleMethodImplementationSourceGenerator();
         JavaClientSourceGenerator generator = new JavaClientSourceGenerator(clientGenerator, generatedSource);
 
         generator.addEndpoint(stub);

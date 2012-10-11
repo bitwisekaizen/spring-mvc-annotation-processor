@@ -17,22 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class GeneratedClientTests {
 
     private TestDirectories testDirectories = new TestDirectories();
-
-    @Test
-    public void canRunSimpleAnnotationProcessor() throws IOException, CompilationFailedException {
-        SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
-        File sourceFile = new File(testDirectories.getTestSources() + "/TestController.java");
-
-        compile(sourceFile, processor);
-
-        assertEquals(processor.getServerEndpoints().size(), 1, "Expected exactly one request mapping.");
-    }
 
     @Test
     public void processorProducesClientSourceFile() throws CompilationFailedException, IOException {
