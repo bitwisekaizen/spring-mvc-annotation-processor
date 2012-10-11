@@ -1,5 +1,6 @@
 package com.thegrayfiles.tests;
 
+import com.thegrayfiles.exception.CompilationFailedException;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
 import org.testng.annotations.Test;
 
@@ -18,21 +19,30 @@ public class GeneratedClientTests {
     private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/src/test/java/com/thegrayfiles/util";
 
     @Test
-    public void canRunSimpleAnnotationProcessor() throws IOException {
+    public void canRunSimpleAnnotationProcessor() throws IOException, CompilationFailedException {
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
         File sourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
 
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(sourceFile));
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
-        task.setProcessors(asList(processor));
-
-        if (!task.call()) {
-            throw new RuntimeException("Class failed to compile.");
-        }
+        compile(sourceFile, processor);
 
         assertEquals(processor.getStubs().size(), 1, "Expected exactly one request mapping.");
     }
 
+    /**
+     * Compile a file and process it using the annotation processor specified.
+     * @param file the file to compile
+     * @param processor the annotation processor to use
+     * @throws CompilationFailedException
+     */
+    private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(file));
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, javaFileObjects);
+        task.setProcessors(asList(processor));
+
+        if (!task.call()) {
+            throw new CompilationFailedException(file);
+        }
+    }
 }
