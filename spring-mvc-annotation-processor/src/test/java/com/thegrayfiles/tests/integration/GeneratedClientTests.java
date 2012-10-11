@@ -41,6 +41,7 @@ public class GeneratedClientTests {
 
         // create file to get the appropriate temp file name and then delete it so that the processor can recreate it
         File generatedSourcesDirectory = new File(testDirectories.getGeneratedSources());
+        generatedSourcesDirectory.mkdirs();
         File clientSourceFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         clientSourceFile.delete();
 
