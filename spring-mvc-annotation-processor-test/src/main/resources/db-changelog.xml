@@ -1,0 +1,36 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet id="1" author="gavin">
+        <createTable tableName="stimuli">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="2-create-images-table" author="gavin">
+        <renameTable oldTableName="stimuli" newTableName="images" />
+        <addColumn tableName="images">
+            <column name="uuid" type="VARCHAR(32)">
+                <constraints unique="true" nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="3-create-image-contents-table" author="gavin">
+        <createTable tableName="image_contents">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="content" type="BLOB">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="4-widen-uuid-column" author="gavin">
+        <modifyDataType tableName="images" columnName="uuid" newDataType="VARCHAR(256)" />
+    </changeSet>
+    <changeSet id="5-widen-content-column" author="gavin">
+        <modifyDataType tableName="image_contents" columnName="content" newDataType="LONGBLOB" />
+    </changeSet>
+</databaseChangeLog>
