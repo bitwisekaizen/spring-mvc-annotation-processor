@@ -32,7 +32,7 @@ public class GeneratedClientTests {
      * Compile a file and process it using the annotation processor specified.
      * @param file the file to compile
      * @param processor the annotation processor to use
-     * @throws CompilationFailedException
+     * @throws CompilationFailedException if compilation of the specified file fails
      */
     private void compile(File file, SpringControllerAnnotationProcessor processor) throws CompilationFailedException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
