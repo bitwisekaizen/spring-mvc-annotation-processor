@@ -6,6 +6,7 @@ import com.thegrayfiles.server.ServerEndpoint;
 import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
+import com.thegrayfiles.util.TestDirectories;
 import com.thegrayfiles.util.TestSourceGenerator;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -25,17 +26,16 @@ import static org.testng.Assert.assertTrue;
 @Test
 public class JavaClientSourceGeneratorTests {
 
-    private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
-    private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/target/test-classes";
+    private TestDirectories testDirectories = new TestDirectories();
     private File testClassesDirectory;
     private File generatedSource;
 
     @BeforeMethod
     public void setup() throws IOException {
-        File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+        File generatedSourcesDirectory = new File(testDirectories.getGeneratedSources());
         generatedSourcesDirectory.mkdirs();
 
-        testClassesDirectory = new File(TEST_CLASSES_DIR);
+        testClassesDirectory = new File(testDirectories.getTestClasses());
         testClassesDirectory.mkdirs();
 
         generatedSource = File.createTempFile("ClientStub", ".java", generatedSourcesDirectory);

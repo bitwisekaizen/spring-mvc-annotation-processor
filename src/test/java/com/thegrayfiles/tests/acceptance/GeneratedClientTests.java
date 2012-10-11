@@ -2,6 +2,7 @@ package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.exception.CompilationFailedException;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
+import com.thegrayfiles.util.TestDirectories;
 import org.testng.annotations.Test;
 
 import javax.tools.JavaCompiler;
@@ -20,13 +21,13 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class GeneratedClientTests {
-    private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/target/generated-sources";
-    private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/src/test/java/com/thegrayfiles/util";
+
+    private TestDirectories testDirectories = new TestDirectories();
 
     @Test
     public void canRunSimpleAnnotationProcessor() throws IOException, CompilationFailedException {
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
-        File sourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
+        File sourceFile = new File(testDirectories.getTestSources() + "/TestController.java");
 
         compile(sourceFile, processor);
 
@@ -47,10 +48,10 @@ public class GeneratedClientTests {
 
     private File processTestController() throws CompilationFailedException, IOException {
         SpringControllerAnnotationProcessor processor = new SpringControllerAnnotationProcessor();
-        File annotatedSourceFile = new File(TEST_SOURCES_DIR + "/TestController.java");
+        File annotatedSourceFile = new File(testDirectories.getTestSources() + "/TestController.java");
 
         // create file to get the appropriate temp file name and then delete it so that the processor can recreate it
-        File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+        File generatedSourcesDirectory = new File(testDirectories.getGeneratedSources());
         File clientSourceFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         clientSourceFile.delete();
 
