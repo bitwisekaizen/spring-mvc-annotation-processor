@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.testng.Assert.assertEquals;
@@ -22,7 +23,7 @@ public class SimpleControllerTests {
 
     @Test
     public void canFetchResourceFromController() throws CompilationFailedException, ClassNotFoundException,
-            IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+            IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
         // generate client by compiling test controller with annotation processor
         SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
         String outputClientFilename = GENERATED_SOURCES_DIR + "/TestClient.java";

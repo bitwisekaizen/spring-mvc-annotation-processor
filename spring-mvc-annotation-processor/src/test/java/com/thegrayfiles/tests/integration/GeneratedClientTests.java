@@ -8,8 +8,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
 
@@ -40,9 +38,9 @@ public class GeneratedClientTests {
         File clientSourceFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         clientSourceFile.delete();
 
-        Map<String, String> options = new HashMap<String, String>();
-        options.put(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, clientSourceFile.getAbsolutePath());
-        compiler.compile(annotatedSourceFile, processor, options);
+        compiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, clientSourceFile.getAbsolutePath());
+        compiler.addAnnotationProcessor(processor);
+        compiler.compile(annotatedSourceFile);
         clientSourceFile.deleteOnExit();
 
         return clientSourceFile;
