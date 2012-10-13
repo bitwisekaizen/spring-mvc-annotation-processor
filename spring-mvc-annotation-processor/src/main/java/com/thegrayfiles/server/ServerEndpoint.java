@@ -10,9 +10,15 @@ public class ServerEndpoint {
     private MethodSignature signature;
     private List<ServerRequestParameter> requestParameters = new ArrayList<ServerRequestParameter>();
     private List<ServerPathVariable> pathVariables = new ArrayList<ServerPathVariable>();
+    private String requestMapping;
 
-    public ServerEndpoint(MethodSignature signature) {
+    public ServerEndpoint(String requestMapping, MethodSignature signature) {
         this.signature = signature;
+        this.requestMapping = requestMapping;
+    }
+
+    public String getRequestMapping() {
+        return requestMapping;
     }
 
     public MethodSignature getMethodSignature() {

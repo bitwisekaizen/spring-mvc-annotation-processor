@@ -38,7 +38,7 @@ public class ClientStubBuilder implements Builder<ServerEndpoint> {
     }
 
     public ServerEndpoint build() {
-        ServerEndpoint stub = new ServerEndpoint(methodSignature);
+        ServerEndpoint stub = new ServerEndpoint("/mapping", methodSignature);
         for (ServerPathVariable pathVariable : pathVariables) {
             stub.addPathVariable(pathVariable);
         }

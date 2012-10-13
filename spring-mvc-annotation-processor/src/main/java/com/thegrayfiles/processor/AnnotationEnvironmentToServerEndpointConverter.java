@@ -27,13 +27,15 @@ public class AnnotationEnvironmentToServerEndpointConverter {
         Set<? extends Element> methods = roundEnvironment.getElementsAnnotatedWith(RequestMapping.class);
         for (Element method : methods) {
             try {
+                // only support single request mapping, don't support
+                String requestMapping = method.getAnnotation(RequestMapping.class).value()[0];
                 String methodName = method.getSimpleName().toString();
                 ExecutableElement executableMethod = (ExecutableElement) method;
                 Element elementReturnType = processingEnv.getTypeUtils().asElement(executableMethod.getReturnType());
                 Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                ServerEndpoint endpoint = new ServerEndpoint(methodSignature);
+                ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     methodSignature.addParameter(new MethodParameter(parameter.getClass()));
                     endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter,
