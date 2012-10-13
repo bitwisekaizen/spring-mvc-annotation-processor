@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class SimpleControllerTests {
 
@@ -19,7 +20,6 @@ public class SimpleControllerTests {
     private static final String GENERATED_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/spring-mvc-annotation-processor-test-webapp/target/generated-sources";
     private static final String TEST_SOURCES_DIR = "/code/github/spring-mvc-annotation-processor/spring-mvc-annotation-processor-test-webapp/src/main/java/com/thegrayfiles/web";
     private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/spring-mvc-annotation-processor-test-webapp/target/test-classes";
-
 
     @Test
     public void canFetchResourceFromController() throws CompilationFailedException, ClassNotFoundException,
@@ -36,6 +36,7 @@ public class SimpleControllerTests {
         SimpleCompiler clientCompiler = new SimpleCompiler();
         File testClassesDirectory = new File(TEST_CLASSES_DIR);
         File classFile = clientCompiler.compile(new File(outputClientFilename), testClassesDirectory);
+        classFile.deleteOnExit();
         assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
 
         // load the client
@@ -46,6 +47,7 @@ public class SimpleControllerTests {
         TestEntity castedResponse = (TestEntity) response;
 
         // make the request
+        assertNotNull(castedResponse, "Invocation of simple client method resulted in null response.");
         assertEquals(castedResponse.getName(), "test", "Response entity name is incorrect.");
     }
 }

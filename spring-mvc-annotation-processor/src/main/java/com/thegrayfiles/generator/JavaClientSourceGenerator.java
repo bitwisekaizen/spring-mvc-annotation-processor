@@ -25,8 +25,15 @@ public class JavaClientSourceGenerator {
 
     public void process() {
         try {
+            String className = file.getName().replaceFirst(".java", "");
             LinkedList<String> fileContents = new LinkedList<String>();
-            fileContents.add("public class " + file.getName().replaceFirst(".java", "") + " {");
+            fileContents.add("public class " + className + " {");
+
+            // generate data members
+            fileContents.add("private String wsRoot;");
+
+            // generate client constructor
+            fileContents.add("public " + className + "(String wsRoot) { this.wsRoot = wsRoot; }");
 
             for (ServerEndpoint endpoint: endpoints) {
                 // generate signature and method contents
