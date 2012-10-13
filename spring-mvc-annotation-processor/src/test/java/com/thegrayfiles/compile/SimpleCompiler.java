@@ -53,4 +53,16 @@ public class SimpleCompiler {
         }
         return optionsString;
     }
+
+    public void addAnnotationProcessor(SpringControllerAnnotationProcessor annotationProcessor) {
+
+    }
+
+    public void addAnnotationProcessorOption(String key, String value) {
+
+    }
+
+    public File compile(File inputFile, File outputDirectory) {
+        return null;
+    }
 }
