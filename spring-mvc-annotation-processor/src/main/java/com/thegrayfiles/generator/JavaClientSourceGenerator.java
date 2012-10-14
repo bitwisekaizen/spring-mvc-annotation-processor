@@ -1,16 +1,19 @@
 package com.thegrayfiles.generator;
 
+import com.thegrayfiles.method.MethodSignature;
+import com.thegrayfiles.processor.ClassStringToClassConverter;
 import com.thegrayfiles.server.ServerEndpoint;
 import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
-import com.thegrayfiles.method.MethodSignature;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class JavaClientSourceGenerator {
 
@@ -24,12 +27,12 @@ public class JavaClientSourceGenerator {
     }
 
     public void process() {
+
         try {
             String className = file.getName().replaceFirst(".java", "");
             LinkedList<String> fileContents = new LinkedList<String>();
 
-            fileContents.add("import com.thegrayfiles.generator.JavaClientHttpOperations;");
-            //fileContents.add("import com.thegrayfiles.marshallable.TestEntity;");
+            addImportsToFileContents(fileContents);
             fileContents.add("public class " + className + " {");
 
             // generate data members
@@ -70,6 +73,25 @@ public class JavaClientSourceGenerator {
             // throw runtime exception for now, but have more explicit exception soon
             throw new RuntimeException("IOException occurred when writing to the file.", e);
         }
+    }
+
+    private void addImportsToFileContents(LinkedList<String> fileContents) {
+        Set<Class> classesToImport = aggregateClassesToImport();
+        fileContents.add("import com.thegrayfiles.generator.JavaClientHttpOperations;");
+        for (Class clazz : classesToImport) {
+            if (!ClassStringToClassConverter.SUPPORTED_PRIMITIVE_CLASSES.contains(clazz)) {
+                fileContents.add("import " + clazz.getCanonicalName() + ";");
+            }
+        }
+    }
+
+    private Set<Class> aggregateClassesToImport() {
+        Set<Class> classesToImport = new HashSet<Class>();
+        for (ServerEndpoint endpoint : endpoints) {
+            Class returnType = endpoint.getMethodSignature().getReturnType();
+            classesToImport.add(returnType);
+        }
+        return classesToImport;
     }
 
     public void addEndpoint(ServerEndpoint endpoint) {

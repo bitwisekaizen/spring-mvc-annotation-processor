@@ -14,7 +14,7 @@ public class ClassStringToClassConverterTests {
 
     @Test
     public void canConvertPrimitiveStrings() throws ClassNotFoundException {
-        for (String clazz : ClassStringToClassConverter.SUPPORTED_PRIMITIVES) {
+        for (String clazz : ClassStringToClassConverter.SUPPORTED_PRIMITIVE_STRINGS) {
             // as long as this doesn't throw, then the test passes
             converter.convert(clazz);
         }
