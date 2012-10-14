@@ -2,6 +2,8 @@ package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.compile.SimpleCompiler;
 import com.thegrayfiles.exception.CompilationFailedException;
+import com.thegrayfiles.generator.JavaClientHttpOperations;
+import com.thegrayfiles.generator.RestTemplatePoweredHttpOperations;
 import com.thegrayfiles.marshallable.TestEntity;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
 import org.springframework.web.client.RestTemplate;
@@ -42,7 +44,8 @@ public class SimpleControllerTests {
         // load the client
         ClassLoader loader = ClassLoader.getSystemClassLoader();
         Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
-        Object client = clazz.getConstructor(String.class).newInstance("http://localhost:8080/test-webapp/ws");
+        JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
+        Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
         Object response = clazz.getMethod("simple").invoke(client);
         TestEntity castedResponse = (TestEntity) response;
 

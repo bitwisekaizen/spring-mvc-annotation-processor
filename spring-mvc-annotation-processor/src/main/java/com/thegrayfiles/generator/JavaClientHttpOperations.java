@@ -1,5 +1,5 @@
 package com.thegrayfiles.generator;
 
 public interface JavaClientHttpOperations {
-    void get();
+    public <T> T get(String mapping, Class<T> responseType);
 }

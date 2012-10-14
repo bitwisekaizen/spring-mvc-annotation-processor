@@ -29,6 +29,7 @@ public class JavaClientSourceGenerator {
             LinkedList<String> fileContents = new LinkedList<String>();
 
             fileContents.add("import com.thegrayfiles.generator.JavaClientHttpOperations;");
+            //fileContents.add("import com.thegrayfiles.marshallable.TestEntity;");
             fileContents.add("public class " + className + " {");
 
             // generate data members

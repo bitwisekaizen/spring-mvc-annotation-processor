@@ -19,6 +19,6 @@ public class MethodImplementationSourceGeneratorTests {
         List<String> source = sourceGenerator.generate(endpoint);
 
         assertEquals(source.size(), 1, "Generated source should be no more than a single string.");
-        assertEquals(source.get(0), "ops.get(\"/test\");", "Unexpected generated source.");
+        assertEquals(source.get(0), "ops.get(\"/test\", void.class);", "Unexpected generated source.");
     }
 }

@@ -1,7 +1,7 @@
 package com.thegrayfiles.processor;
 
 import com.thegrayfiles.generator.JavaClientSourceGenerator;
-import com.thegrayfiles.generator.SimpleMethodImplementationSourceGenerator;
+import com.thegrayfiles.generator.MethodImplementationSourceGenerator;
 import com.thegrayfiles.server.ServerEndpoint;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -44,7 +44,7 @@ public class SpringControllerAnnotationProcessor extends AbstractProcessor {
         }
 
         if (roundEnvironment.processingOver()) {
-            SimpleMethodImplementationSourceGenerator methodImplementationSourceGenerator = new SimpleMethodImplementationSourceGenerator();
+            MethodImplementationSourceGenerator methodImplementationSourceGenerator = new MethodImplementationSourceGenerator();
             JavaClientSourceGenerator javaClientSourceGenerator = new JavaClientSourceGenerator(methodImplementationSourceGenerator, outputFile);
             for (ServerEndpoint endpoint : serverEndpoints) {
                 javaClientSourceGenerator.addEndpoint(endpoint);

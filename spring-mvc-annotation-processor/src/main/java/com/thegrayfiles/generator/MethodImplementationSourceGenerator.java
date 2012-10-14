@@ -7,6 +7,7 @@ import java.util.List;
 
 public class MethodImplementationSourceGenerator {
     public List<String> generate(ServerEndpoint endpoint) {
-        return Arrays.asList("ops.get(\"" + endpoint.getRequestMapping() + "\");");
+        String returnType = endpoint.getMethodSignature().getReturnType().getSimpleName();
+        return Arrays.asList((returnType.equals("void") ? "" : "return ") + "ops.get(\"" + endpoint.getRequestMapping() + "\", " + returnType + ".class);");
     }
 }

@@ -75,7 +75,7 @@ public class JavaClientSourceGeneratorTests {
     }
 
     private void canProcessRequestMapping(ServerEndpoint stub) throws IOException {
-        MethodImplementationSourceGenerator clientGenerator = new SimpleMethodImplementationSourceGenerator();
+        MethodImplementationSourceGenerator clientGenerator = new MethodImplementationSourceGenerator();
         JavaClientSourceGenerator generator = new JavaClientSourceGenerator(clientGenerator, generatedSource);
 
         generator.addEndpoint(stub);
