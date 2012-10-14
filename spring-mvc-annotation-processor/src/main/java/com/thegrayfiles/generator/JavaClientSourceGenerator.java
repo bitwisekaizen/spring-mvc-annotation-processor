@@ -77,7 +77,10 @@ public class JavaClientSourceGenerator {
 
     private void addImportsToFileContents(LinkedList<String> fileContents) {
         Set<Class> classesToImport = aggregateClassesToImport();
+        fileContents.add("import java.util.Map;");
+        fileContents.add("import java.util.HashMap;");
         fileContents.add("import com.thegrayfiles.generator.JavaClientHttpOperations;");
+
         for (Class clazz : classesToImport) {
             if (!ClassStringToClassConverter.SUPPORTED_PRIMITIVE_CLASSES.contains(clazz)) {
                 fileContents.add("import " + clazz.getCanonicalName() + ";");
