@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class SimpleController {
 
-    @RequestMapping(value="/canFetchResourceFromController")
-    public @ResponseBody TestEntity canFetchResourceFromController() {
+    @RequestMapping(value="/canFetchResourceWithNoParameters")
+    public @ResponseBody TestEntity canFetchResourceWithNoParameters() {
         return new TestEntity("test");
     }
 
