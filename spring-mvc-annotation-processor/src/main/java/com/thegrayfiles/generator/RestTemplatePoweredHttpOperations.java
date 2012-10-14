@@ -19,6 +19,6 @@ public class RestTemplatePoweredHttpOperations implements JavaClientHttpOperatio
     }
 
     public <T> T get(String mapping, Class<T> responseType, Map<String, Object> requestParameters) {
-        return null;
+        return restTemplate.getForEntity(wsRoot + mapping + "?name={name}", responseType, requestParameters).getBody();
     }
 }

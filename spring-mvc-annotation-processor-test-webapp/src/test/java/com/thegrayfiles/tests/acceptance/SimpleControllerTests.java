@@ -26,16 +26,16 @@ public class SimpleControllerTests {
             IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
         // generate client by compiling test controller with annotation processor
         SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
-        String outputClientFilename = GENERATED_SOURCES_DIR + "/TestClient.java";
-        String inputControllerFilename = TEST_SOURCES_DIR + "/TestController.java";
+        File outputClientFile = File.createTempFile("TestClient", ".java", new File(GENERATED_SOURCES_DIR));
+        String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
         annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
-        annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFilename);
+        annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
         annotationProcessingCompiler.compile(new File(inputControllerFilename));
 
         // client source should now be generated, compile the client source
         SimpleCompiler clientCompiler = new SimpleCompiler();
         File testClassesDirectory = new File(TEST_CLASSES_DIR);
-        File classFile = clientCompiler.compile(new File(outputClientFilename), testClassesDirectory);
+        File classFile = clientCompiler.compile(outputClientFile, testClassesDirectory);
         classFile.deleteOnExit();
         assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
 
@@ -59,7 +59,7 @@ public class SimpleControllerTests {
         // generate client by compiling test controller with annotation processor
         SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
         String outputClientFilename = GENERATED_SOURCES_DIR + "/TestClient.java";
-        String inputControllerFilename = TEST_SOURCES_DIR + "/TestController.java";
+        String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
         annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
         annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFilename);
         annotationProcessingCompiler.compile(new File(inputControllerFilename));
