@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SimpleController {
 
     @RequestMapping(value="/canFetchResourceFromController")
-    public @ResponseBody TestEntity get() {
+    public @ResponseBody TestEntity canFetchResourceFromController() {
         return new TestEntity("test");
     }
 

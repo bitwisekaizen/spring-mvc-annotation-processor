@@ -44,7 +44,8 @@ public class SimpleControllerTests {
         Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
         JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
         Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
-        Object response = clazz.getMethod("get").invoke(client);
+        String testMethodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        Object response = clazz.getMethod(testMethodName).invoke(client);
         TestEntity castedResponse = (TestEntity) response;
 
         // make the request
