@@ -7,7 +7,7 @@ import com.thegrayfiles.server.ServerRequestParameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleMethodImplementationSourceGenerator implements MethodImplementationSourceGenerator {
+public class SimpleMethodImplementationSourceGenerator extends MethodImplementationSourceGenerator {
 
     public List<String> generate(ServerEndpoint stub) {
         List<String> source = new ArrayList<String>();

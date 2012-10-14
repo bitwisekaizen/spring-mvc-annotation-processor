@@ -14,7 +14,6 @@ import static org.testng.Assert.assertTrue;
 public class GeneratedClientTests {
 
     private TestDirectories testDirectories = new TestDirectories();
-    private SimpleCompiler compiler = new SimpleCompiler();
 
     @Test
     public void processorProducesClientSourceFile() throws CompilationFailedException, IOException {
@@ -25,6 +24,7 @@ public class GeneratedClientTests {
     @Test
     public void processorProducesCompilableClientSourceFile() throws CompilationFailedException, IOException {
         File clientSourceFile = processTestController();
+        SimpleCompiler compiler = new SimpleCompiler();
         compiler.compile(clientSourceFile);
     }
 
@@ -38,9 +38,11 @@ public class GeneratedClientTests {
         File clientSourceFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         clientSourceFile.delete();
 
-        compiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, clientSourceFile.getAbsolutePath());
-        compiler.addAnnotationProcessor(processor);
-        compiler.compile(annotatedSourceFile);
+        SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
+
+        annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, clientSourceFile.getAbsolutePath());
+        annotationProcessingCompiler.addAnnotationProcessor(processor);
+        annotationProcessingCompiler.compile(annotatedSourceFile);
         clientSourceFile.deleteOnExit();
 
         return clientSourceFile;

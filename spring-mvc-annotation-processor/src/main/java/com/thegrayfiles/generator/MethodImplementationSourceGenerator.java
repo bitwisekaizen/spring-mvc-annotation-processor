@@ -2,8 +2,11 @@ package com.thegrayfiles.generator;
 
 import com.thegrayfiles.server.ServerEndpoint;
 
+import java.util.Arrays;
 import java.util.List;
 
-public interface MethodImplementationSourceGenerator {
-    List<String> generate(ServerEndpoint endpoint);
+public class MethodImplementationSourceGenerator {
+    public List<String> generate(ServerEndpoint endpoint) {
+        return Arrays.asList("ops.get(\"" + endpoint.getRequestMapping() + "\");");
+    }
 }

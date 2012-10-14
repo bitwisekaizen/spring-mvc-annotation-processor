@@ -27,13 +27,15 @@ public class JavaClientSourceGenerator {
         try {
             String className = file.getName().replaceFirst(".java", "");
             LinkedList<String> fileContents = new LinkedList<String>();
+
+            fileContents.add("import com.thegrayfiles.generator.JavaClientHttpOperations;");
             fileContents.add("public class " + className + " {");
 
             // generate data members
-            fileContents.add("private String wsRoot;");
+            fileContents.add("private JavaClientHttpOperations ops;");
 
             // generate client constructor
-            fileContents.add("public " + className + "(String wsRoot) { this.wsRoot = wsRoot; }");
+            fileContents.add("public " + className + "(JavaClientHttpOperations ops) { this.ops = ops; }");
 
             for (ServerEndpoint endpoint: endpoints) {
                 // generate signature and method contents

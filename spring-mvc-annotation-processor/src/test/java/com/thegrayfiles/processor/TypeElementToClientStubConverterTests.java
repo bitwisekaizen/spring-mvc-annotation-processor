@@ -54,8 +54,12 @@ public class TypeElementToClientStubConverterTests {
 
         roundEnvironment = mock(RoundEnvironment.class);
 
+        RequestMapping annotation = mock(RequestMapping.class);
+
         when(executableMethod.getReturnType()).thenReturn(returnTypeMirror);
         when(executableMethod.getSimpleName()).thenReturn(methodName);
+        when(executableMethod.getAnnotation(RequestMapping.class)).thenReturn(annotation);
+        when(annotation.value()).thenReturn(new String[] { "/something" });
 
         when(roundEnvironment.getElementsAnnotatedWith(RequestMapping.class)).thenReturn(new TreeSet(asList(executableMethod)));
 
