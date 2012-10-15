@@ -1,7 +1,6 @@
 package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.compile.SimpleCompiler;
-import com.thegrayfiles.exception.CompilationFailedException;
 import com.thegrayfiles.generator.JavaClientHttpOperations;
 import com.thegrayfiles.generator.RestTemplatePoweredHttpOperations;
 import com.thegrayfiles.marshallable.TestEntity;
@@ -9,11 +8,9 @@ import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.fail;
 
 public class SimpleControllerTests {
 
@@ -22,59 +19,66 @@ public class SimpleControllerTests {
     private static final String TEST_CLASSES_DIR = "/code/github/spring-mvc-annotation-processor/spring-mvc-annotation-processor-test-webapp/target/test-classes";
 
     @Test
-    public void canFetchResourceWithNoParameters() throws CompilationFailedException, ClassNotFoundException,
-            IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
+    public void canFetchResourceWithNoParameters() {
         TestEntity entity = canFetchResourceFromController();
         assertEquals(entity.getName(), "test", "Response entity name is incorrect.");
     }
 
     @Test
-    public void canFetchResourceUsingParameter() throws CompilationFailedException, IOException,
-            ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException,
-            InstantiationException {
+    public void canFetchResourceUsingParameter() {
         String entityName = "somecrazyname";
-        TestEntity entity = canFetchResourceFromController(new Class<?>[]{String.class}, new Object[]{entityName});
+        TestEntity entity = canFetchResourceFromController(String.class, entityName);
         assertEquals(entity.getName(), entityName, "Response entity name is incorrect.");
     }
 
-    private TestEntity canFetchResourceFromController() throws CompilationFailedException, IOException,
-            InvocationTargetException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
-            IllegalAccessException {
-        Class<?>[] noTypes = null;
-        Object[] noValues = null;
-        return canFetchResourceFromController(noTypes, noValues);
+    @Test
+    public void canFetchResourceUsingPathVariable() {
+        String entityName = "pathvariablename";
+        TestEntity entity = canFetchResourceFromController(String.class, entityName);
+        assertEquals(entity.getName(), entityName, "Response entity name is incorrect.");
     }
 
-    private TestEntity canFetchResourceFromController(Class<?>[] types, Object[] values) throws CompilationFailedException, ClassNotFoundException,
-            IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
-        // generate client by compiling test controller with annotation processor
-        SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
-        File outputClientFile = File.createTempFile("TestClient", ".java", new File(GENERATED_SOURCES_DIR));
-        outputClientFile.deleteOnExit();
-        String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
-        annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
-        annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
-        annotationProcessingCompiler.compile(new File(inputControllerFilename));
+    private TestEntity canFetchResourceFromController() {
+        Class<?> noType = null;
+        Object noValue = null;
+        return canFetchResourceFromController(noType, noValue);
+    }
 
-        // client source should now be generated, compile the client source
-        SimpleCompiler clientCompiler = new SimpleCompiler();
-        File testClassesDirectory = new File(TEST_CLASSES_DIR);
-        File classFile = clientCompiler.compile(outputClientFile, testClassesDirectory);
-        classFile.deleteOnExit();
-        assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
+    private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
+        try {
+            // generate client by compiling test controller with annotation processor
+            SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
+            File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+            generatedSourcesDirectory.mkdirs();
+            File outputClientFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
+            outputClientFile.deleteOnExit();
+            String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
+            annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
+            annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
+            annotationProcessingCompiler.compile(new File(inputControllerFilename));
 
-        // load the client
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
-        Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
-        JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
-        Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
-        String testMethodName = determineTestMethod();
-        Object response = clazz.getMethod(testMethodName, types).invoke(client, values);
-        TestEntity castedResponse = (TestEntity) response;
+            // client source should now be generated, compile the client source
+            SimpleCompiler clientCompiler = new SimpleCompiler();
+            File testClassesDirectory = new File(TEST_CLASSES_DIR);
+            File classFile = clientCompiler.compile(outputClientFile, testClassesDirectory);
+            classFile.deleteOnExit();
+            assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
 
-        // make the request
-        assertNotNull(castedResponse, "Invocation of simple client method resulted in null response.");
-        return castedResponse;
+            // load the client
+            ClassLoader loader = ClassLoader.getSystemClassLoader();
+            Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
+            JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
+            Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
+            String testMethodName = determineTestMethod();
+            if (type == null) {
+                return (TestEntity) clazz.getMethod(testMethodName).invoke(client);
+            }
+            return (TestEntity) clazz.getMethod(testMethodName, type).invoke(client, value);
+        } catch (Exception e) {
+            fail("Unexpected exception thrown while fetching resource from controller.", e);
+        }
+
+        return null;
     }
 
     private String determineTestMethod() throws ClassNotFoundException {
