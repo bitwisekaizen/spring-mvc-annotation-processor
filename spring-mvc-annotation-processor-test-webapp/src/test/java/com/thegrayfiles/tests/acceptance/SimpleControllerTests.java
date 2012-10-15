@@ -5,6 +5,8 @@ import com.thegrayfiles.generator.JavaClientHttpOperations;
 import com.thegrayfiles.generator.RestTemplatePoweredHttpOperations;
 import com.thegrayfiles.marshallable.TestEntity;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
+import com.thegrayfiles.server.ServerPathVariable;
+import com.thegrayfiles.server.ServerRequestParameter;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -39,6 +41,33 @@ public class SimpleControllerTests {
     }
 
     @Test
+    public void canFetchResourceWithPathVariableAndRequestParameter() {
+        ServerPathVariable pathVariable = new ServerPathVariable(String.class, "pathVariable");
+        ServerRequestParameter requestParam = new ServerRequestParameter(String.class, "requestParam");
+        TestEntity testEntity = canFetchResourceFromController(pathVariable, requestParam);
+        assertPathVariablesAreSame(testEntity.getPathVariable(), pathVariable);
+        assertRequestParametersAreSame(testEntity.getRequestParameter(), requestParam);
+    }
+
+    private void assertRequestParametersAreSame(ServerRequestParameter actual, ServerRequestParameter expected) {
+        assertEquals(actual.getType(), expected.getType());
+        assertEquals(actual.getName(), expected.getName());
+    }
+
+    private void assertPathVariablesAreSame(ServerPathVariable actual, ServerPathVariable expected) {
+        assertEquals(actual.getType(), expected.getType());
+        assertEquals(actual.getName(), expected.getName());
+    }
+
+    private TestEntity canFetchResourceFromController(ServerPathVariable pathVariable, ServerRequestParameter requestParam) {
+        return canFetchResourceFromController(new Class<?>[]{pathVariable.getType(), requestParam.getType()}, new Object[]{pathVariable.getName(), requestParam.getName()});
+    }
+
+    private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
+        return canFetchResourceFromController(new Class<?>[]{type}, new Object[]{value});
+    }
+
+    @Test
     public void getRequestMappingMethodShouldNotAffectAbilityToFetchResource() {
         canFetchResourceWithNoParameters();
     }
@@ -49,7 +78,7 @@ public class SimpleControllerTests {
         return canFetchResourceFromController(noType, noValue);
     }
 
-    private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
+    private TestEntity canFetchResourceFromController(Class<?>[] types, Object[] values) {
         try {
             // generate client by compiling test controller with annotation processor
             SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
@@ -75,10 +104,10 @@ public class SimpleControllerTests {
             JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
             Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
             String testMethodName = determineTestMethod();
-            if (type == null) {
+            if (types == null || types[0] == null) {
                 return (TestEntity) clazz.getMethod(testMethodName).invoke(client);
             }
-            return (TestEntity) clazz.getMethod(testMethodName, type).invoke(client, value);
+            return (TestEntity) clazz.getMethod(testMethodName, types).invoke(client, values);
         } catch (Exception e) {
             fail("Unexpected exception thrown while fetching resource from controller.", e);
         }

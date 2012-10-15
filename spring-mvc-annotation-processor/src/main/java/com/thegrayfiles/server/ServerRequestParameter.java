@@ -4,6 +4,8 @@ public class ServerRequestParameter {
     private Class<?> type;
     private String name;
 
+    protected ServerRequestParameter() {}
+
     public ServerRequestParameter(Class<?> type, String name) {
         this.type = type;
         this.name = name;
