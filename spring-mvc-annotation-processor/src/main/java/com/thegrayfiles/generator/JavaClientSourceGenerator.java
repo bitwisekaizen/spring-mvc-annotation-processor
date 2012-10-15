@@ -47,17 +47,17 @@ public class JavaClientSourceGenerator {
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
                 fileContents.add("(");
 
-                // add request parameters
-                List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
-                for (ServerRequestParameter requestParameter : requestParameters) {
-                    fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
-                    fileContents.add(", ");
-                }
-
                 // add path variables
                 List<ServerPathVariable> pathVariables = endpoint.getPathVariables();
                 for (ServerPathVariable pathVariable : pathVariables) {
                     fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
+                    fileContents.add(", ");
+                }
+
+                // add request parameters
+                List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
+                for (ServerRequestParameter requestParameter : requestParameters) {
+                    fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
                     fileContents.add(", ");
                 }
 

@@ -43,6 +43,18 @@ public class SimpleControllerTests {
         TestEntity testEntity = canFetchResourceFromController(new Class<?>[]{String.class, String.class}, new Object[]{"pathVariableValue", "requestParameterValue"});
         assertEquals(testEntity.getRequestParameterValues().size(), 1);
         assertEquals(testEntity.getPathVariableValues().size(), 1);
+        assertEquals(testEntity.getRequestParameterValues().get(0), "requestParameterValue");
+        assertEquals(testEntity.getPathVariableValues().get(0), "pathVariableValue");
+    }
+
+    // fails
+    @Test
+    public void clientGenerationPreservesControllerParameterOrdering() {
+        TestEntity testEntity = canFetchResourceFromController(new Class<?>[]{String.class, String.class}, new Object[]{"requestParameterValue", "pathVariableValue"});
+        assertEquals(testEntity.getRequestParameterValues().size(), 1);
+        assertEquals(testEntity.getPathVariableValues().size(), 1);
+        assertEquals(testEntity.getRequestParameterValues().get(0), "requestParameterValue");
+        assertEquals(testEntity.getPathVariableValues().get(0), "pathVariableValue");
     }
 
     private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
