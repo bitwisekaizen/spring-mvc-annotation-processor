@@ -1,16 +1,15 @@
 package com.thegrayfiles.marshallable;
 
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class TestEntity {
 
     private String name;
-    private ServerPathVariable pathVariable;
-    private ServerRequestParameter requestParameter;
+    private List<String> requestParameterValues = new ArrayList<String>();
+    private List<String> pathVariableValues = new ArrayList<String>();
 
     protected TestEntity() {}
 
@@ -26,20 +25,27 @@ public class TestEntity {
         this.name = name;
     }
 
-    public ServerPathVariable getPathVariable() {
-        return pathVariable;
+    public List<String> getRequestParameterValues() {
+        return requestParameterValues;
     }
 
-    public void setPathVariable(ServerPathVariable pathVariable) {
-        this.pathVariable = pathVariable;
+    public void setRequestParameterValues(List<String> requestParameterValues) {
+        this.requestParameterValues = requestParameterValues;
     }
 
-
-    public ServerRequestParameter getRequestParameter() {
-        return requestParameter;
+    public List<String> getPathVariableValues() {
+        return pathVariableValues;
     }
 
-    public void setRequestParameter(ServerRequestParameter requestParameter) {
-        this.requestParameter = requestParameter;
+    public void setPathVariableValues(List<String> pathVariableValues) {
+        this.pathVariableValues = pathVariableValues;
+    }
+
+    public void addPathVariableValue(String value) {
+        pathVariableValues.add(value);
+    }
+
+    public void addRequestParameterValue(String value) {
+        requestParameterValues.add(value);
     }
 }

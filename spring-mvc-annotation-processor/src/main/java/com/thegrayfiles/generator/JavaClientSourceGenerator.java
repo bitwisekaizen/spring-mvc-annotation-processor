@@ -53,15 +53,18 @@ public class JavaClientSourceGenerator {
                     fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
                     fileContents.add(", ");
                 }
-                if (requestParameters.size() != 0) {
-                    fileContents.removeLast();
-                }
 
                 // add path variables
                 List<ServerPathVariable> pathVariables = endpoint.getPathVariables();
                 for (ServerPathVariable pathVariable : pathVariables) {
-                     fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
+                    fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
+                    fileContents.add(", ");
                 }
+
+                if (requestParameters.size() != 0 || pathVariables.size() != 0) {
+                    fileContents.removeLast();
+                }
+
                 fileContents.add(") {");
                 fileContents.addAll(methodGenerator.generate(endpoint));
                 fileContents.add("}");

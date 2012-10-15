@@ -4,8 +4,6 @@ public class ServerPathVariable {
     private String name;
     private Class<?> type;
 
-    protected ServerPathVariable() {}
-
     public ServerPathVariable(Class<?> type, String name) {
         this.name = name;
         this.type = type;

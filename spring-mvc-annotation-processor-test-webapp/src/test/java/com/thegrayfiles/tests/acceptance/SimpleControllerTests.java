@@ -5,8 +5,6 @@ import com.thegrayfiles.generator.JavaClientHttpOperations;
 import com.thegrayfiles.generator.RestTemplatePoweredHttpOperations;
 import com.thegrayfiles.marshallable.TestEntity;
 import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,32 +33,16 @@ public class SimpleControllerTests {
 
     @Test
     public void canFetchResourceUsingPathVariable() {
-        String entityName = "pathvariablename";
-        TestEntity entity = canFetchResourceFromController(String.class, entityName);
-        assertEquals(entity.getName(), entityName, "Response entity name is incorrect.");
+        String value = "pathvariablename";
+        TestEntity entity = canFetchResourceFromController(String.class, value);
+        assertEquals(entity.getName(), value, "Response entity name is incorrect.");
     }
 
     @Test
     public void canFetchResourceWithPathVariableAndRequestParameter() {
-        ServerPathVariable pathVariable = new ServerPathVariable(String.class, "pathVariable");
-        ServerRequestParameter requestParam = new ServerRequestParameter(String.class, "requestParam");
-        TestEntity testEntity = canFetchResourceFromController(pathVariable, requestParam);
-        assertPathVariablesAreSame(testEntity.getPathVariable(), pathVariable);
-        assertRequestParametersAreSame(testEntity.getRequestParameter(), requestParam);
-    }
-
-    private void assertRequestParametersAreSame(ServerRequestParameter actual, ServerRequestParameter expected) {
-        assertEquals(actual.getType(), expected.getType());
-        assertEquals(actual.getName(), expected.getName());
-    }
-
-    private void assertPathVariablesAreSame(ServerPathVariable actual, ServerPathVariable expected) {
-        assertEquals(actual.getType(), expected.getType());
-        assertEquals(actual.getName(), expected.getName());
-    }
-
-    private TestEntity canFetchResourceFromController(ServerPathVariable pathVariable, ServerRequestParameter requestParam) {
-        return canFetchResourceFromController(new Class<?>[]{pathVariable.getType(), requestParam.getType()}, new Object[]{pathVariable.getName(), requestParam.getName()});
+        TestEntity testEntity = canFetchResourceFromController(new Class<?>[]{String.class, String.class}, new Object[]{"pathVariableValue", "requestParameterValue"});
+        assertEquals(testEntity.getRequestParameterValues().size(), 1);
+        assertEquals(testEntity.getPathVariableValues().size(), 1);
     }
 
     private TestEntity canFetchResourceFromController(Class<?> type, Object value) {

@@ -30,4 +30,12 @@ public class SimpleController {
     public TestEntity getRequestMappingMethodShouldNotAffectAbilityToFetchResource() {
         return canFetchResourceWithNoParameters();
     }
+
+    @RequestMapping(value="/canFetchResourceWithPathVariableAndRequestParameter/{pathVariable}")
+    public TestEntity canFetchResourceWithPathVariableAndRequestParameter(@PathVariable String pathVariable, @RequestParam String requestParam) {
+        TestEntity testEntity = new TestEntity("name");
+        testEntity.addPathVariableValue(pathVariable);
+        testEntity.addRequestParameterValue(requestParam);
+        return testEntity;
+    }
 }
