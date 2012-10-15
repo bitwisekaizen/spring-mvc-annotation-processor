@@ -1,9 +1,8 @@
 package com.thegrayfiles.generator;
 
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -36,8 +35,8 @@ public class MethodImplementationSourceGeneratorTests {
     public void canGenerateGetRequestWithRequestParameters() {
         MethodSignature signature = new MethodSignature(void.class, "simple");
         ServerEndpoint endpoint = new ServerEndpoint("/test", signature);
-        endpoint.addRequestParameter(new ServerRequestParameter(String.class, "param"));
-        endpoint.addRequestParameter(new ServerRequestParameter(String.class, "param2"));
+        endpoint.addRequestParameter(new MethodParameter(String.class, "param"));
+        endpoint.addRequestParameter(new MethodParameter(String.class, "param2"));
 
         LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
 
@@ -48,7 +47,7 @@ public class MethodImplementationSourceGeneratorTests {
     public void canGenerateGetRequestWithPathVariable() {
         MethodSignature signature = new MethodSignature(void.class, "simple");
         ServerEndpoint endpoint = new ServerEndpoint("/test/{pathVar}", signature);
-        endpoint.addPathVariable(new ServerPathVariable(String.class, "pathVar"));
+        endpoint.addPathVariable(new MethodParameter(String.class, "pathVar"));
 
         LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
 

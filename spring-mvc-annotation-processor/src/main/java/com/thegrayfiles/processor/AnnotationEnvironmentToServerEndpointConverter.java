@@ -3,8 +3,6 @@ package com.thegrayfiles.processor;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,16 +43,15 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
                 ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
-                    methodSignature.addParameter(new MethodParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
                     RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
                     if (requestParam != null) {
-                        endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter, processingEnv),
+                        endpoint.addRequestParameter(new MethodParameter(getParameterType(parameter, processingEnv),
                                 parameter.getSimpleName().toString()));
                     }
 
                     PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
                     if (pathVariable != null) {
-                        endpoint.addPathVariable(new ServerPathVariable(getParameterType(parameter, processingEnv),
+                        endpoint.addPathVariable(new MethodParameter(getParameterType(parameter, processingEnv),
                                 parameter.getSimpleName().toString()));
                     }
                 }

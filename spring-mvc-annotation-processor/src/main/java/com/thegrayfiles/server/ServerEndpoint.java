@@ -1,5 +1,6 @@
 package com.thegrayfiles.server;
 
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 
 import java.util.ArrayList;
@@ -8,8 +9,8 @@ import java.util.List;
 public class ServerEndpoint {
 
     private MethodSignature signature;
-    private List<ServerRequestParameter> requestParameters = new ArrayList<ServerRequestParameter>();
-    private List<ServerPathVariable> pathVariables = new ArrayList<ServerPathVariable>();
+    private List<MethodParameter> requestParameters = new ArrayList<MethodParameter>();
+    private List<MethodParameter> pathVariables = new ArrayList<MethodParameter>();
     private String requestMapping;
 
     public ServerEndpoint(String requestMapping, MethodSignature signature) {
@@ -25,19 +26,21 @@ public class ServerEndpoint {
         return signature;
     }
 
-    public void addRequestParameter(ServerRequestParameter parameter) {
+    public void addRequestParameter(MethodParameter parameter) {
         requestParameters.add(parameter);
+        signature.addParameter(parameter);
     }
 
-    public List<ServerRequestParameter> getRequestParameters() {
+    public List<MethodParameter> getRequestParameters() {
         return requestParameters;
     }
 
-    public void addPathVariable(ServerPathVariable pathVariable) {
+    public void addPathVariable(MethodParameter pathVariable) {
         pathVariables.add(pathVariable);
+        signature.addParameter(pathVariable);
     }
 
-    public List<ServerPathVariable> getPathVariables() {
+    public List<MethodParameter> getPathVariables() {
         return pathVariables;
     }
 }

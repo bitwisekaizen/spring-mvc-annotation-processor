@@ -1,7 +1,7 @@
 package com.thegrayfiles.processor;
 
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerRequestParameter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.testng.annotations.BeforeMethod;
@@ -109,7 +109,7 @@ public class TypeElementToClientStubConverterTests {
         List<ServerEndpoint> stubs = typeElementAdapter.convert(processingEnvironment, roundEnvironment);
         ServerEndpoint stub = stubs.get(0);
 
-        ServerRequestParameter requestParameter = stub.getRequestParameters().get(0);
+        MethodParameter requestParameter = stub.getRequestParameters().get(0);
         assertEquals(requestParameter.getName(), "requestParam");
         assertEquals(requestParameter.getType(), Object.class);
     }

@@ -1,8 +1,7 @@
 package com.thegrayfiles.generator;
 
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +15,19 @@ public class MethodImplementationSourceGenerator {
         String returnType = endpoint.getMethodSignature().getReturnType().getSimpleName();
 
         // substitute path variables
-        List<ServerPathVariable> pathVariables = endpoint.getPathVariables();
+        List<MethodParameter> pathVariables = endpoint.getPathVariables();
         if (pathVariables.size() > 0) {
-            for (ServerPathVariable pathVariable : pathVariables) {
+            for (MethodParameter pathVariable : pathVariables) {
                 String pathVariableName = pathVariable.getName();
                 requestMapping = requestMapping.replaceAll("(.*?)[{]" + pathVariableName + "[}](.*)", "$1\"+" + pathVariableName + "+\"");
             }
         }
 
         // add request parameters
-        List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
+        List<MethodParameter> requestParameters = endpoint.getRequestParameters();
         if (requestParameters.size() > 0) {
             requestParameterString = "?";
-            for (ServerRequestParameter requestParameter : requestParameters) {
+            for (MethodParameter requestParameter : requestParameters) {
                 String requestParameterName = requestParameter.getName();
                 requestParameterString += requestParameterName + "=\"+" + requestParameterName + "+\"&";
             }

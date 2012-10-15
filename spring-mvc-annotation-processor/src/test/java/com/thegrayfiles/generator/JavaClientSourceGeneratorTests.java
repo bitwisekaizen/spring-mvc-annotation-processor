@@ -3,8 +3,6 @@ package com.thegrayfiles.generator;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.util.InverseSpringControllerAnnotationProcessor;
 import com.thegrayfiles.util.TestDirectories;
 import org.apache.commons.io.FileUtils;
@@ -111,10 +109,10 @@ public class JavaClientSourceGeneratorTests {
 
     private Map<Class<?>, Integer> getStubTypeCount(ServerEndpoint stub) {
         Map<Class<?>, Integer> typeCount = new HashMap<Class<?>, Integer>();
-        for (ServerRequestParameter parameter : stub.getRequestParameters()) {
+        for (MethodParameter parameter : stub.getRequestParameters()) {
             incrementTypeCount(typeCount, parameter.getType());
         }
-        for (ServerPathVariable pathVariable : stub.getPathVariables()) {
+        for (MethodParameter pathVariable : stub.getPathVariables()) {
             incrementTypeCount(typeCount, pathVariable.getType());
         }
         return typeCount;
