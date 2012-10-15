@@ -2,6 +2,7 @@ package com.thegrayfiles.generator;
 
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerPathVariable;
 import com.thegrayfiles.server.ServerRequestParameter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -41,5 +42,16 @@ public class MethodImplementationSourceGeneratorTests {
         LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
 
         assertEquals(source.getLast(), "ops.get(\"/test?param=\"+param+\"&param2=\"+param2+\"\",void.class,requestParameters);", "Unexpected generated source.");
+    }
+
+    @Test
+    public void canGenerateGetRequestWithPathVariable() {
+        MethodSignature signature = new MethodSignature(void.class, "simple");
+        ServerEndpoint endpoint = new ServerEndpoint("/test/{pathVar}", signature);
+        endpoint.addPathVariable(new ServerPathVariable(String.class, "pathVar"));
+
+        LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
+
+        assertEquals(source.getLast(), "ops.get(\"/test/\"+pathVar+\"\",void.class);", "Unexpected generated source.");
     }
 }
