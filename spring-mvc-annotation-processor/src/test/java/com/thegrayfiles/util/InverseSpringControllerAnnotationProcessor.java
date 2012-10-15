@@ -60,7 +60,7 @@ public class InverseSpringControllerAnnotationProcessor {
     private void addMethodSignature(Method method) {
         MethodSignature methodSignature = new MethodSignature(method.getReturnType(), method.getName());
         for (Class<?> parameterType : method.getParameterTypes()) {
-            methodSignature.addParameter(new MethodParameter(parameterType));
+            methodSignature.addParameter(new MethodParameter(parameterType, "whatever"));
         }
         methodSignatures.add(methodSignature);
     }

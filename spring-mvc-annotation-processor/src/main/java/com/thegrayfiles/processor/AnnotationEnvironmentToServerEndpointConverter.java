@@ -45,7 +45,7 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
                 ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
-                    methodSignature.addParameter(new MethodParameter(parameter.getClass()));
+                    methodSignature.addParameter(new MethodParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
                     RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
                     if (requestParam != null) {
                         endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter, processingEnv),

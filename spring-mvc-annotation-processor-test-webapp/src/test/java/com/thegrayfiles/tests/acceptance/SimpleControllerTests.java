@@ -47,7 +47,6 @@ public class SimpleControllerTests {
         assertEquals(testEntity.getPathVariableValues().get(0), "pathVariableValue");
     }
 
-    // fails
     @Test
     public void clientGenerationPreservesControllerParameterOrdering() {
         TestEntity testEntity = canFetchResourceFromController(new Class<?>[]{String.class, String.class}, new Object[]{"requestParameterValue", "pathVariableValue"});

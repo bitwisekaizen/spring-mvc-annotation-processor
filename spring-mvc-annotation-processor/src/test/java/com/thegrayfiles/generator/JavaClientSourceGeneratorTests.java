@@ -59,21 +59,6 @@ public class JavaClientSourceGeneratorTests {
         canProcessRequestMapping(stub);
     }
 
-    @Test
-    public void canProcessRequestMappingWithMultipleRequestParameters() throws IOException {
-        ServerEndpoint endpoint = aStub()
-                .withRequestParam(new ServerRequestParameter(String.class, "param"))
-                .withRequestParam(new ServerRequestParameter(Integer.class, "anotherparam"))
-                .withRequestParam(new ServerRequestParameter(Integer.class, "onemoreofthesametype")).build();
-        canProcessRequestMapping(endpoint);
-    }
-
-    @Test
-    public void canProcessRequestMappingWithSinglePathVariable() throws IOException {
-        ServerEndpoint endpoint = aStub().withPathVariable(new ServerPathVariable(String.class, "somekindofpathvariable")).build();
-        canProcessRequestMapping(endpoint);
-    }
-
     private void canProcessRequestMapping(ServerEndpoint stub) throws IOException {
         MethodImplementationSourceGenerator clientGenerator = new MethodImplementationSourceGenerator();
         JavaClientSourceGenerator generator = new JavaClientSourceGenerator(clientGenerator, generatedSource);

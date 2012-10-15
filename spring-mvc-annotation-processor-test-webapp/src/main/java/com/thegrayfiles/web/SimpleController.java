@@ -40,7 +40,7 @@ public class SimpleController {
     }
 
     @RequestMapping(value="/clientGenerationPreservesControllerParameterOrdering/{pathVariable}")
-    public TestEntity clientGenerationPreservesControllerParameterOrdering(@PathVariable String pathVariable, @RequestParam String requestParam) {
+    public TestEntity clientGenerationPreservesControllerParameterOrdering(@RequestParam String requestParam, @PathVariable String pathVariable) {
         TestEntity testEntity = new TestEntity("name");
         testEntity.addPathVariableValue(pathVariable);
         testEntity.addRequestParameterValue(requestParam);

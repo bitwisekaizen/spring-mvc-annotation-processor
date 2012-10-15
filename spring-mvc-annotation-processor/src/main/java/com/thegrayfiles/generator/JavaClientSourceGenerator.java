@@ -1,10 +1,9 @@
 package com.thegrayfiles.generator;
 
+import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.processor.ClassStringToClassConverter;
 import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerPathVariable;
-import com.thegrayfiles.server.ServerRequestParameter;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -47,21 +46,13 @@ public class JavaClientSourceGenerator {
                 fileContents.add("public " + signature.getReturnType().getCanonicalName() + " " + signature.getMethodName());
                 fileContents.add("(");
 
-                // add path variables
-                List<ServerPathVariable> pathVariables = endpoint.getPathVariables();
-                for (ServerPathVariable pathVariable : pathVariables) {
-                    fileContents.add(pathVariable.getType().getCanonicalName() + " " + pathVariable.getName());
+                List<MethodParameter> parameters = endpoint.getMethodSignature().getParameters();
+                for (MethodParameter parameter : parameters) {
+                    fileContents.add(parameter.getType().getCanonicalName() + " " + parameter.getName());
                     fileContents.add(", ");
                 }
 
-                // add request parameters
-                List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
-                for (ServerRequestParameter requestParameter : requestParameters) {
-                    fileContents.add(requestParameter.getType().getCanonicalName() + " " + requestParameter.getName());
-                    fileContents.add(", ");
-                }
-
-                if (requestParameters.size() != 0 || pathVariables.size() != 0) {
+                if (parameters.size() != 0) {
                     fileContents.removeLast();
                 }
 
