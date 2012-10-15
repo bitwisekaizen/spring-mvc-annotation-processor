@@ -4,6 +4,7 @@ import com.thegrayfiles.marshallable.TestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,5 +24,10 @@ public class SimpleController {
     @RequestMapping(value="/canFetchResourceUsingPathVariable/{name}")
     public @ResponseBody TestEntity canFetchResourceUsingPathVariable(@PathVariable String name) {
         return new TestEntity(name);
+    }
+
+    @RequestMapping(value="/getRequestMappingMethodShouldNotAffectAbilityToFetchResource", method = RequestMethod.GET)
+    public TestEntity getRequestMappingMethodShouldNotAffectAbilityToFetchResource() {
+        return canFetchResourceWithNoParameters();
     }
 }

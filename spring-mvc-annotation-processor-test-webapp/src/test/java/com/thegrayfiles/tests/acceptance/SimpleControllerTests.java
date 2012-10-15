@@ -38,6 +38,11 @@ public class SimpleControllerTests {
         assertEquals(entity.getName(), entityName, "Response entity name is incorrect.");
     }
 
+    @Test
+    public void getRequestMappingMethodShouldNotAffectAbilityToFetchResource() {
+        canFetchResourceWithNoParameters();
+    }
+
     private TestEntity canFetchResourceFromController() {
         Class<?> noType = null;
         Object noValue = null;
