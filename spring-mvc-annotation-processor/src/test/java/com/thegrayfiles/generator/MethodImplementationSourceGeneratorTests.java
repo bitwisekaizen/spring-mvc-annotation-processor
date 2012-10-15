@@ -41,7 +41,7 @@ public class MethodImplementationSourceGeneratorTests {
 
         LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
 
-        assertEquals(source.getLast(), "ops.get(\"/test?param=\"+param+\"&param2=\"+param2+\"\",void.class,requestParameters);", "Unexpected generated source.");
+        assertEquals(source.getLast(), "ops.get(\"/test?param=\"+param+\"&param2=\"+param2+\"\",void.class);", "Unexpected generated source.");
     }
 
     @Test

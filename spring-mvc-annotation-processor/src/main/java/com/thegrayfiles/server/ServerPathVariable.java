@@ -4,7 +4,7 @@ public class ServerPathVariable {
     private String name;
     private Class<?> type;
 
-    public ServerPathVariable(Class<String> type, String name) {
+    public ServerPathVariable(Class<?> type, String name) {
         this.name = name;
         this.type = type;
     }

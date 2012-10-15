@@ -28,10 +28,8 @@ public class MethodImplementationSourceGenerator {
         List<ServerRequestParameter> requestParameters = endpoint.getRequestParameters();
         if (requestParameters.size() > 0) {
             requestParameterString = "?";
-            source.add("Map<String, Object> requestParameters = new HashMap<String, Object>();");
             for (ServerRequestParameter requestParameter : requestParameters) {
                 String requestParameterName = requestParameter.getName();
-                source.add("requestParameters.put(\"" + requestParameterName + "\"," + requestParameterName + ");");
                 requestParameterString += requestParameterName + "=\"+" + requestParameterName + "+\"&";
             }
             requestParameterString = requestParameterString.replaceAll("(.*)&$", "$1");
@@ -43,7 +41,6 @@ public class MethodImplementationSourceGenerator {
         opsInvocation += requestParameterString;
         opsInvocation += "\"";
         opsInvocation += "," + returnType + ".class";
-        opsInvocation += requestParameters.size() > 0 ? ",requestParameters" : "";
         opsInvocation += ");";
         source.add(opsInvocation);
         return source;

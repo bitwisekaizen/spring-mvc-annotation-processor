@@ -1,10 +1,13 @@
 package com.thegrayfiles.processor;
 
-import com.thegrayfiles.server.ServerEndpoint;
-import com.thegrayfiles.server.ServerRequestParameter;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
+import com.thegrayfiles.server.ServerEndpoint;
+import com.thegrayfiles.server.ServerPathVariable;
+import com.thegrayfiles.server.ServerRequestParameter;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -43,8 +46,17 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     methodSignature.addParameter(new MethodParameter(parameter.getClass()));
-                    endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter,
-                            processingEnv), parameter.getSimpleName().toString()));
+                    RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+                    if (requestParam != null) {
+                        endpoint.addRequestParameter(new ServerRequestParameter(getParameterType(parameter, processingEnv),
+                                parameter.getSimpleName().toString()));
+                    }
+
+                    PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+                    if (pathVariable != null) {
+                        endpoint.addPathVariable(new ServerPathVariable(getParameterType(parameter, processingEnv),
+                                parameter.getSimpleName().toString()));
+                    }
                 }
                 endpoints.add(endpoint);
             } catch (ClassNotFoundException e) {
