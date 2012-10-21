@@ -38,7 +38,7 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 String methodName = method.getSimpleName().toString();
                 ExecutableElement executableMethod = (ExecutableElement) method;
                 Element elementReturnType = processingEnv.getTypeUtils().asElement(executableMethod.getReturnType());
-                Class<?> returnType = classStringToClassConverter.convert(elementReturnType.toString());
+                Class<?> returnType = elementReturnType == null ? void.class : classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
                 ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);

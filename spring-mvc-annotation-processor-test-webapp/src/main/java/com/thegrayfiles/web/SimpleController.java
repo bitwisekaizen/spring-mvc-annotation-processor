@@ -46,4 +46,16 @@ public class SimpleController {
         testEntity.addRequestParameterValue(requestParam);
         return testEntity;
     }
+
+    private TestEntity sharedEntity = new TestEntity("someName");;
+
+    @RequestMapping(value="/canPerformGetWithoutAnyResponseFetchEntity")
+    public TestEntity canPerformGetWithoutAnyResponseFetchEntity() {
+        return sharedEntity;
+    }
+
+    @RequestMapping(value="/canPerformGetWithoutAnyResponseUpdateEntity")
+    public @ResponseBody void canPerformGetWithoutAnyResponseUpdateEntity(@RequestParam String name) {
+        sharedEntity.setName(name);
+    }
 }
