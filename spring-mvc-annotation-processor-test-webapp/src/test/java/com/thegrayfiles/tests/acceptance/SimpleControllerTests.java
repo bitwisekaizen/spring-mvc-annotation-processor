@@ -1,6 +1,7 @@
 package com.thegrayfiles.tests.acceptance;
 
 import com.thegrayfiles.compile.SimpleCompiler;
+import com.thegrayfiles.exception.CompilationFailedException;
 import com.thegrayfiles.generator.JavaClientHttpOperations;
 import com.thegrayfiles.generator.RestTemplatePoweredHttpOperations;
 import com.thegrayfiles.marshallable.TestEntity;
@@ -8,6 +9,11 @@ import com.thegrayfiles.processor.SpringControllerAnnotationProcessor;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -56,13 +62,106 @@ public class SimpleControllerTests {
         assertEquals(testEntity.getPathVariableValues().get(0), "pathVariableValue");
     }
 
-    private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
-        return canFetchResourceFromController(new Class<?>[]{type}, new Object[]{value});
-    }
-
     @Test
     public void getRequestMappingMethodShouldNotAffectAbilityToFetchResource() {
         canFetchResourceWithNoParameters();
+    }
+
+    @Test
+    public void canPerformGetWithoutAnyResponse() {
+        String randomString = UUID.randomUUID().toString();
+        DynamicallyGeneratedClientMethodBuilder fetchRequestBuilder = new DynamicallyGeneratedClientMethodBuilder("canPerformGetWithoutAnyResponseFetchEntity");
+        DynamicallyGeneratedClientMethodBuilder updateRequestBuilder = new DynamicallyGeneratedClientMethodBuilder("canPerformGetWithoutAnyResponseUpdateEntity");
+
+        //
+        updateRequestBuilder.withArgument(String.class, randomString).invoke();
+
+        //
+        TestEntity updatedTestEntity = fetchRequestBuilder.invoke(TestEntity.class);
+        assertEquals(updatedTestEntity.getName(), randomString);
+    }
+
+    private class ClientArgument<T> {
+
+        private final Class<T> type;
+        private final T value;
+
+        public ClientArgument(Class<T> type, T value) {
+            this.type = type;
+            this.value = value;
+        }
+    }
+
+    private class DynamicallyGeneratedClientMethodBuilder {
+
+        private String methodName;
+        private List<Class<?>> argumentTypes = new ArrayList<Class<?>>();
+        private List<Object> argumentValues = new ArrayList<Object>();
+
+        public DynamicallyGeneratedClientMethodBuilder(String methodName) {
+            this.methodName = methodName;
+        }
+
+        public <T> DynamicallyGeneratedClientMethodBuilder withArgument(Class<T> type, T value) {
+            argumentTypes.add(type);
+            argumentValues.add(value);
+            return this;
+        }
+
+
+        public void invoke() {
+            Class<?> clazz;
+            try {
+                clazz = generateClient();
+                JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
+                Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
+                clazz.getMethod(methodName, argumentTypes.toArray(new Class[argumentTypes.size()]))
+                        .invoke(client, argumentValues.toArray(new Object[argumentValues.size()]));
+            } catch (CompilationFailedException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            }
+        }
+
+        public <T> T invoke(Class<T> returnType) {
+            Class<?> clazz;
+            try {
+                clazz = generateClient();
+                JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
+                Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
+                return (T) clazz.getMethod(methodName, argumentTypes.toArray(new Class[argumentTypes.size()]))
+                        .invoke(client, argumentValues.toArray(new Object[argumentValues.size()]));
+            } catch (CompilationFailedException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Problem invoking client method.", e);
+            }
+        }
+    }
+
+    private TestEntity canFetchResourceFromController(Class<?> type, Object value) {
+        return canFetchResourceFromController(new Class<?>[]{type}, new Object[]{value});
     }
 
     private TestEntity canFetchResourceFromController() {
@@ -73,29 +172,11 @@ public class SimpleControllerTests {
 
     private TestEntity canFetchResourceFromController(Class<?>[] types, Object[] values) {
         try {
-            // generate client by compiling test controller with annotation processor
-            SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
-            File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
-            generatedSourcesDirectory.mkdirs();
-            File outputClientFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
-            outputClientFile.deleteOnExit();
-            String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
-            annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
-            annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
-            annotationProcessingCompiler.compile(new File(inputControllerFilename));
-
-            // client source should now be generated, compile the client source
-            SimpleCompiler clientCompiler = new SimpleCompiler();
-            File testClassesDirectory = new File(TEST_CLASSES_DIR);
-            File classFile = clientCompiler.compile(outputClientFile, testClassesDirectory);
-            classFile.deleteOnExit();
-            assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
-
-            // load the client
-            ClassLoader loader = ClassLoader.getSystemClassLoader();
-            Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
+            Class<?> clazz = generateClient();
             JavaClientHttpOperations ops = new RestTemplatePoweredHttpOperations("http://localhost:8080/test-webapp/ws");
             Object client = clazz.getConstructor(JavaClientHttpOperations.class).newInstance(ops);
+
+            // load the client
             String testMethodName = determineTestMethod();
             if (types == null || types[0] == null) {
                 return (TestEntity) clazz.getMethod(testMethodName).invoke(client);
@@ -106,6 +187,31 @@ public class SimpleControllerTests {
         }
 
         return null;
+    }
+
+    private Class<?> generateClient() throws CompilationFailedException, IOException, ClassNotFoundException,
+            NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        // generate client by compiling test controller with annotation processor
+        SimpleCompiler annotationProcessingCompiler = new SimpleCompiler();
+        File generatedSourcesDirectory = new File(GENERATED_SOURCES_DIR);
+        generatedSourcesDirectory.mkdirs();
+        File outputClientFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
+        outputClientFile.deleteOnExit();
+        String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
+        annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
+        annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
+        annotationProcessingCompiler.compile(new File(inputControllerFilename));
+
+        // client source should now be generated, compile the client source
+        SimpleCompiler clientCompiler = new SimpleCompiler();
+        File testClassesDirectory = new File(TEST_CLASSES_DIR);
+        File classFile = clientCompiler.compile(outputClientFile, testClassesDirectory);
+        classFile.deleteOnExit();
+        assertEquals(classFile.getParentFile().getAbsolutePath(), testClassesDirectory.getAbsolutePath(), "Compiled class file does not reside in specified classes directory.");
+
+        ClassLoader loader = ClassLoader.getSystemClassLoader();
+        Class<?> clazz = loader.loadClass(classFile.getName().replaceAll(".class", ""));
+        return clazz;
     }
 
     private String determineTestMethod() throws ClassNotFoundException {
