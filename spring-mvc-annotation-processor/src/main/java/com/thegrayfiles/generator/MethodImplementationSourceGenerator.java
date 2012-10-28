@@ -2,6 +2,7 @@ package com.thegrayfiles.generator;
 
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.server.ServerEndpoint;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,18 @@ public class MethodImplementationSourceGenerator {
             requestParameterString = requestParameterString.replaceAll("(.*)&$", "$1");
         }
 
+        RequestMethod method = endpoint.getRequestMethod();
+
         // generate the string
         opsInvocation = (returnType.equals("void") ? "" : "return ");
-        opsInvocation += "ops.get(\"" + requestMapping;
+        switch (method) {
+            case GET:
+                opsInvocation += "ops.get(\"";
+                break;
+            case POST:
+                opsInvocation += "ops.post(\"";
+        }
+        opsInvocation += requestMapping;
         opsInvocation += requestParameterString;
         opsInvocation += "\"";
         opsInvocation += "," + returnType + ".class";

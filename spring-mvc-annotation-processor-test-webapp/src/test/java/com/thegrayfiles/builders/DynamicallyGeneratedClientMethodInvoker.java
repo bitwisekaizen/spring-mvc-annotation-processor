@@ -73,7 +73,7 @@ public class DynamicallyGeneratedClientMethodInvoker {
         generatedSourcesDirectory.mkdirs();
         File outputClientFile = File.createTempFile("TestClient", ".java", generatedSourcesDirectory);
         outputClientFile.deleteOnExit();
-        String inputControllerFilename = TEST_SOURCES_DIR + "/SimpleController.java";
+        String inputControllerFilename = TEST_SOURCES_DIR;
         annotationProcessingCompiler.addAnnotationProcessor(new SpringControllerAnnotationProcessor());
         annotationProcessingCompiler.addAnnotationProcessorOption(SpringControllerAnnotationProcessor.OPTION_CLIENT_OUTPUT_FILE, outputClientFile.getAbsolutePath());
         annotationProcessingCompiler.compile(new File(inputControllerFilename));

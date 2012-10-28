@@ -11,5 +11,6 @@ public class PostControllerTests {
     public void canPostWithoutParametersOrReturnValue() {
         DynamicallyGeneratedClientMethodInvoker invoker = aMethodNamed("canPostWithoutParametersOrReturnValue");
         invoker.invoke();
+        // nothing to assert at the moment besides no exception thrown
     }
 }

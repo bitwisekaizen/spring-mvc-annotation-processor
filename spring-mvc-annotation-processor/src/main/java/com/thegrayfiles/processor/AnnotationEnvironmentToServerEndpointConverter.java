@@ -5,6 +5,7 @@ import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -41,7 +42,7 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 Class<?> returnType = elementReturnType == null ? void.class : classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                ServerEndpoint endpoint = new ServerEndpoint(requestMapping, methodSignature);
+                ServerEndpoint endpoint = new ServerEndpoint(requestMapping, RequestMethod.GET, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
                     if (requestParam != null) {

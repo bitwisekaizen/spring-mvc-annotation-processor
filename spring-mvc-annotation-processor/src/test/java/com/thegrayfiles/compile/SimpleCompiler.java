@@ -11,6 +11,7 @@ import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,14 @@ public class SimpleCompiler {
         List<String> processorOptions = buildAnnotationProcessorOptionsList();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(asList(file));
+
+        Collection<File> files;
+        if (file.isDirectory()) {
+            files = FileUtils.listFiles(file, new String[]{"java"}, true);
+        } else {
+            files = asList(file);
+        }
+        Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjectsFromFiles(files);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, processorOptions, null, javaFileObjects);
 
         task.setProcessors(annotationProcessors);

@@ -3,6 +3,7 @@ package com.thegrayfiles.builders;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ClientStubBuilder implements Builder<ServerEndpoint> {
     }
 
     public ServerEndpoint build() {
-        ServerEndpoint stub = new ServerEndpoint("/mapping", methodSignature);
+        ServerEndpoint stub = new ServerEndpoint("/mapping", RequestMethod.GET, methodSignature);
         for (MethodParameter pathVariable : pathVariables) {
             stub.addPathVariable(pathVariable);
         }

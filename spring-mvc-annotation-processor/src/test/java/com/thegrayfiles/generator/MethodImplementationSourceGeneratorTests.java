@@ -3,6 +3,7 @@ package com.thegrayfiles.generator;
 import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -23,7 +24,7 @@ public class MethodImplementationSourceGeneratorTests {
     @Test
     public void canGenerateSimpleGetRequest() {
         MethodSignature signature = new MethodSignature(void.class, "simple");
-        ServerEndpoint endpoint = new ServerEndpoint("/test", signature);
+        ServerEndpoint endpoint = new ServerEndpoint("/test", RequestMethod.GET, signature);
 
         List<String> source = sourceGenerator.generate(endpoint);
 
@@ -34,7 +35,7 @@ public class MethodImplementationSourceGeneratorTests {
     @Test
     public void canGenerateGetRequestWithRequestParameters() {
         MethodSignature signature = new MethodSignature(void.class, "simple");
-        ServerEndpoint endpoint = new ServerEndpoint("/test", signature);
+        ServerEndpoint endpoint = new ServerEndpoint("/test", RequestMethod.GET, signature);
         endpoint.addRequestParameter(new MethodParameter(String.class, "param"));
         endpoint.addRequestParameter(new MethodParameter(String.class, "param2"));
 
@@ -46,7 +47,7 @@ public class MethodImplementationSourceGeneratorTests {
     @Test
     public void canGenerateGetRequestWithPathVariable() {
         MethodSignature signature = new MethodSignature(void.class, "simple");
-        ServerEndpoint endpoint = new ServerEndpoint("/test/{pathVar}", signature);
+        ServerEndpoint endpoint = new ServerEndpoint("/test/{pathVar}", RequestMethod.GET, signature);
         endpoint.addPathVariable(new MethodParameter(String.class, "pathVar"));
 
         LinkedList<String> source = new LinkedList<String>(sourceGenerator.generate(endpoint));
