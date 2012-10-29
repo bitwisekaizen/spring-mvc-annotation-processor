@@ -58,5 +58,6 @@ public class ServerEndpoint {
 
     public void setRequestBody(MethodParameter requestBody) {
         this.requestBody = requestBody;
+        signature.addParameter(requestBody);
     }
 }
