@@ -26,4 +26,16 @@ public class PostControllerTests {
         TestEntity postedTestEntity = postInvoker.invoke(TestEntity.class);
         assertEquals(postedTestEntity.getName(), testEntityName);
     }
+
+    @Test
+    public void canPostWithRequestBodyAndRequestParam() {
+        String testEntityName = UUID.randomUUID().toString();
+        String requestParam = "something";
+        TestEntity testEntityToPost = new TestEntity(testEntityName);
+        DynamicallyGeneratedClientMethodInvoker postInvoker = aMethodNamed("canPostWithRequestBodyAndRequestParam").withArgument(TestEntity.class, testEntityToPost).withArgument(String.class, requestParam);
+        TestEntity postedTestEntity = postInvoker.invoke(TestEntity.class);
+        assertEquals(postedTestEntity.getName(), testEntityName);
+        assertEquals(postedTestEntity.getRequestParameterValues().size(), 1);
+        assertEquals(postedTestEntity.getRequestParameterValues().get(0), requestParam);
+    }
 }
