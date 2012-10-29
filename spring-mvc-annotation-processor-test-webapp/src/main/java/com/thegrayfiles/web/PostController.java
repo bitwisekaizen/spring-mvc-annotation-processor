@@ -2,6 +2,7 @@ package com.thegrayfiles.web;
 
 import com.thegrayfiles.marshallable.TestEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +26,13 @@ public class PostController {
     public @ResponseBody TestEntity canPostWithRequestBodyAndRequestParam(@RequestBody TestEntity testEntity, @RequestParam String requestParam) {
         TestEntity returnValue = new TestEntity(testEntity.getName());
         returnValue.addRequestParameterValue(requestParam);
+        return returnValue;
+    }
+
+    @RequestMapping(value="/canPostWithRequestBodyAndPathVariable/{pathVariable}", method = RequestMethod.POST)
+    public @ResponseBody TestEntity canPostWithRequestBodyAndPathVariable(@RequestBody TestEntity testEntity, @PathVariable String pathVariable) {
+        TestEntity returnValue = new TestEntity(testEntity.getName());
+        returnValue.addPathVariableValue(pathVariable);
         return returnValue;
     }
 }
