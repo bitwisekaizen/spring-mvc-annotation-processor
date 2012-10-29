@@ -50,4 +50,19 @@ public class PostControllerTests {
         assertEquals(postedTestEntity.getPathVariableValues().size(), 1);
         assertEquals(postedTestEntity.getPathVariableValues().get(0), pathVariable);
     }
+
+    @Test
+    public void canPostWithRequestBodyAndRequestParamAndPathVariable() {
+        String testEntityName = UUID.randomUUID().toString();
+        String pathVariable = "something";
+        String requestParam = "anotherThing";
+        TestEntity testEntityToPost = new TestEntity(testEntityName);
+        DynamicallyGeneratedClientMethodInvoker postInvoker = aMethodNamed("canPostWithRequestBodyAndRequestParamAndPathVariable").withArgument(TestEntity.class, testEntityToPost).withArgument(String.class, requestParam).withArgument(String.class, pathVariable);
+        TestEntity postedTestEntity = postInvoker.invoke(TestEntity.class);
+        assertEquals(postedTestEntity.getName(), testEntityName);
+        assertEquals(postedTestEntity.getPathVariableValues().size(), 1);
+        assertEquals(postedTestEntity.getPathVariableValues().get(0), pathVariable);
+        assertEquals(postedTestEntity.getRequestParameterValues().size(), 1);
+        assertEquals(postedTestEntity.getRequestParameterValues().get(0), requestParam);
+    }
 }
