@@ -35,5 +35,13 @@ public class PostController {
         returnValue.addPathVariableValue(pathVariable);
         return returnValue;
     }
+
+    @RequestMapping(value="/canPostWithRequestBodyAndRequestParamAndPathVariable/{pathVariable}", method = RequestMethod.POST)
+    public @ResponseBody TestEntity canPostWithRequestBodyAndRequestParamAndPathVariable(@RequestBody TestEntity testEntity, @RequestParam String requestParam, @PathVariable String pathVariable) {
+        TestEntity returnValue = new TestEntity(testEntity.getName());
+        returnValue.addRequestParameterValue(requestParam);
+        returnValue.addPathVariableValue(pathVariable);
+        return returnValue;
+    }
 }
 
