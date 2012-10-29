@@ -15,4 +15,8 @@ public class RestTemplatePoweredHttpOperations implements JavaClientHttpOperatio
     public <T> T get(String mapping, Class<T> responseType) {
         return restTemplate.getForEntity(wsRoot + mapping, responseType).getBody();
     }
+
+    public <T> T post(String mapping, Class<T> responseType, Object requestBody) {
+        return restTemplate.postForEntity(wsRoot + mapping, requestBody, responseType).getBody();
+    }
 }

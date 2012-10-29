@@ -14,6 +14,7 @@ public class ServerEndpoint {
     private List<MethodParameter> pathVariables = new ArrayList<MethodParameter>();
     private String requestMapping;
     private RequestMethod requestMethod;
+    private MethodParameter requestBody;
 
     public ServerEndpoint(String requestMapping, RequestMethod requestMethod, MethodSignature signature) {
         this.signature = signature;
@@ -49,5 +50,13 @@ public class ServerEndpoint {
 
     public RequestMethod getRequestMethod() {
         return requestMethod;
+    }
+
+    public MethodParameter getRequestBody() {
+        return requestBody;
+    }
+
+    public void setRequestBody(MethodParameter requestBody) {
+        this.requestBody = requestBody;
     }
 }

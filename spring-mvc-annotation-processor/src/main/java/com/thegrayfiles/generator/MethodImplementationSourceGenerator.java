@@ -35,11 +35,11 @@ public class MethodImplementationSourceGenerator {
             requestParameterString = requestParameterString.replaceAll("(.*)&$", "$1");
         }
 
-        RequestMethod method = endpoint.getRequestMethod();
+        RequestMethod requestMethod = endpoint.getRequestMethod();
 
         // generate the string
         opsInvocation = (returnType.equals("void") ? "" : "return ");
-        switch (method) {
+        switch (requestMethod) {
             case GET:
                 opsInvocation += "ops.get(\"";
                 break;
@@ -50,6 +50,12 @@ public class MethodImplementationSourceGenerator {
         opsInvocation += requestParameterString;
         opsInvocation += "\"";
         opsInvocation += "," + returnType + ".class";
+        // add request body
+        MethodParameter requestBody = endpoint.getRequestBody();
+        if (requestMethod == RequestMethod.POST) {
+            String requestBodyParameter = requestBody == null ? "null" : requestBody.getName();
+            opsInvocation += "," + requestBodyParameter;
+        }
         opsInvocation += ");";
         source.add(opsInvocation);
         return source;

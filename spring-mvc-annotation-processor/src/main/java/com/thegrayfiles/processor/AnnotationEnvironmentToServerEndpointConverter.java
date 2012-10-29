@@ -4,6 +4,7 @@ import com.thegrayfiles.method.MethodParameter;
 import com.thegrayfiles.method.MethodSignature;
 import com.thegrayfiles.server.ServerEndpoint;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,10 +32,15 @@ public class AnnotationEnvironmentToServerEndpointConverter {
             try {
                 // only support single request mapping if any values exist
                 String requestMapping = "";
-                String[] mappings = method.getAnnotation(RequestMapping.class).value();
+                RequestMapping requestMappingAnnotation = method.getAnnotation(RequestMapping.class);
+                String[] mappings = requestMappingAnnotation.value();
                 if (mappings != null) {
                     requestMapping = mappings[0];
                 }
+
+                // only support first request method if any values exist
+                RequestMethod[] requestMethods = requestMappingAnnotation.method();
+                RequestMethod requestMethod = requestMethods.length == 0 ? RequestMethod.GET : requestMethods[0];
 
                 String methodName = method.getSimpleName().toString();
                 ExecutableElement executableMethod = (ExecutableElement) method;
@@ -42,7 +48,7 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                 Class<?> returnType = elementReturnType == null ? void.class : classStringToClassConverter.convert(elementReturnType.toString());
 
                 MethodSignature methodSignature = new MethodSignature(returnType, methodName);
-                ServerEndpoint endpoint = new ServerEndpoint(requestMapping, RequestMethod.GET, methodSignature);
+                ServerEndpoint endpoint = new ServerEndpoint(requestMapping, requestMethod, methodSignature);
                 for (VariableElement parameter : executableMethod.getParameters()) {
                     RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
                     if (requestParam != null) {
@@ -54,6 +60,11 @@ public class AnnotationEnvironmentToServerEndpointConverter {
                     if (pathVariable != null) {
                         endpoint.addPathVariable(new MethodParameter(getParameterType(parameter, processingEnv),
                                 parameter.getSimpleName().toString()));
+                    }
+
+                    RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
+                    if (requestBody != null) {
+                        endpoint.setRequestBody(new MethodParameter(getParameterType(parameter, processingEnv), parameter.getSimpleName().toString()));
                     }
                 }
                 endpoints.add(endpoint);
